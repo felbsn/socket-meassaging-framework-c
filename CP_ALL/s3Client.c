@@ -204,19 +204,23 @@ s3Flag s3DestroyClient()
 	return s3_SUCCESS;
 }
 
-s3Flag s3RunClient(unsigned int TimeoutMicroSecs)
+s3Flag s3RunClient(s3ContactList *contactList ,unsigned int TimeoutMicroSecs)
 {
+	
+
 	FD_ZERO(&readfds);
 
 	//add master socket to fd set
 	FD_SET(s_server, &readfds);
-	static struct  timeval tm = { 0 };
-	tm.tv_usec = TimeoutMicroSecs;
-	
+
 	int activity;
 
 	if (TimeoutMicroSecs)
+	{
+		struct  timeval tm;
+		tm.tv_usec = TimeoutMicroSecs;
 		activity = select(0, &readfds, NULL, NULL, &tm);
+	}
 	else
 		activity = select(0, &readfds, NULL, NULL, 0);
 
@@ -232,15 +236,29 @@ s3Flag s3RunClient(unsigned int TimeoutMicroSecs)
 
 		if (msg == s3_INCOMING_MSG)
 		{
-			s3SendMsg(s_server, s3_ACCEPT);
-			s3Flag Res = s3RecvToken(s_server, &_lastReceivedPhoneNo);
-			s3SendMsg(s_server, s3_OK);
-			s3RecvBuffer(s_server);
-			return msg;
+			do
+			{
+				s3SendMsg(s_server, s3_ACCEPT);
+				s3Flag Res = s3RecvToken(s_server, &_lastReceivedPhoneNo);
+				s3SendMsg(s_server, s3_OK);
+				s3RecvBuffer(s_server);
+
+				s3HandleMessages(contactList , _lastReceivedPhoneNo);
+
+				s3SendMsg(s_server, s3_OK);
+
+				int res = s3RecvMsg(s_server, &msg);
+
+			} while (msg == s3_CONTINUE);
+
+			if (msg == s3_DONE)
+				return msg;
+			else
+				return s3_FAIL;
 		}
 		else
 		{
-			//puts("some error ocurred in server ... ");
+
 			return msg;
 
 		}

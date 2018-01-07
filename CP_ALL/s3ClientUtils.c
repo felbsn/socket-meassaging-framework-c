@@ -42,12 +42,29 @@ int s3FindContactIndexByPhone(s3ContactList* contactList, Token phoneNo)
 
 }
 
+
+s3Flag s3HandleMessages(s3ContactList* contactList , Token phone)
+{
+
+	int index = s3FindContactIndexByPhone(contactList, phone);
+	if (index < 0)
+	{
+		char buffer[30];
+		sprintf(buffer, "%llu", phone);
+		index = s3AddContactRx(&contactList, buffer, phone , -1);
+	}
+
+	s3AddMessage(&contactList->contacts[index], s3GetRxBuffer(), s3_FROM_CONTACT);
+}
+
+
+
 s3Contact NewContactProtoype(const char* info, Token phoneNo)
 {
 	s3Contact contact;
 	contact.id = -1;
-	contact.s3MessageCount = 1;
-	//contact.ClientIndex = 0;
+	contact.messageCount = 1;
+	contact.msgBuffer = s3NewMessageBuffer();
 	int infoLen = strlen(info);
 	strncpy(contact.info, info, infoLen);
 
@@ -111,7 +128,7 @@ int s3AddContactEx(s3ContactList* contactList, char* infoStr, Token phoneNo, Tok
 
 
 	contactList->contacts[index].id = id;
-	contactList->contacts[index].s3MessageCount = 0;
+	contactList->contacts[index].messageCount = 0;
 	contactList->contacts[index].phoneNo = phoneNo;
 	strcpy(contactList->contacts[index].info, infoStr);
 
@@ -129,7 +146,7 @@ int s3AddContactEx(s3ContactList* contactList, char* infoStr, Token phoneNo, Tok
 }
 
 // last element adder
-int s3AddContactRx(s3ContactList* contactList, char* infoStr, Token phoneNo, Token id)
+int s3AddContactRx(s3ContactList* contactList, const char* infoStr, Token phoneNo, Token id)
 {
 	if (contactList->Size >= contactList->Capacity)
 	{
@@ -141,7 +158,7 @@ int s3AddContactRx(s3ContactList* contactList, char* infoStr, Token phoneNo, Tok
 	// add to last
 
 	contactList->contacts[contactList->Size].id = id;
-	contactList->contacts[contactList->Size].s3MessageCount = 0;
+	contactList->contacts[contactList->Size].messageCount = 0;
 	contactList->contacts[contactList->Size].phoneNo = phoneNo;
 	strcpy(contactList->contacts[contactList->Size].info, infoStr);
 	contactList->Size++;
@@ -190,8 +207,16 @@ int s3AddContact(SOCKET serverSocket, s3ContactList* contactList, char* infoStr,
 
 s3Flag s3Sends3Message(SOCKET serverSocket, s3Contact* contact, int bufferChannel)
 {
+	if (contact->id < 0)
+	{
+		if (s3GetContactID(serverSocket, contact) != s3_SUCCESS)
+			return s3_ERROR;
+	}
+
 	s3Flag msg;
 	int res;
+
+
 	Token id = contact->id;
 	res = s3SendMsg(serverSocket, s3_SEND_MSG_wUSERID);
 	if (!res) return s3_TIMEOUT;
@@ -240,4 +265,41 @@ s3Flag s3Sends3Message(SOCKET serverSocket, s3Contact* contact, int bufferChanne
 	}
 
 	return msg;
+}
+
+
+s3Flag s3GetContactID(SOCKET s_server, s3Contact *contact)
+{
+	if (s_server)
+	{
+		s3Flag result;
+		Token  id;
+		s3SendMsg(s_server, s3_REQ_USERID_wPHONENO);
+		s3RecvMsg(s_server, &result);
+
+		s3SendToken(s_server, contact->phoneNo);
+
+		if (s3RecvMsg(s_server, &result) == s3_SUCCESS)
+		{
+			if (result == s3_FOUND)
+			{
+				s3SendMsg(s_server, s3_OK);
+				s3RecvToken(s_server, &id);
+
+				contact->id = id;
+
+				return s3_SUCCESS;
+			}
+			else
+				if (result == s3_NOT_FOUND)
+				{
+					return s3_USER_NOT_FOUND;
+				}
+		}
+		else
+		{
+			return s3_ERROR;
+		}
+	}
+	return s3_SERVER_ERROR;
 }

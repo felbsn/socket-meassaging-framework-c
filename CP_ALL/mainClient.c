@@ -22,7 +22,8 @@
 int main(int argc , char* argv[])
 {
 	system("cls");
-	
+
+
 	s3InitMessageHandler(1024, 768);
 
 
@@ -162,9 +163,9 @@ int main(int argc , char* argv[])
 		{
 
 		// wait 20 microsec for any incoming event
-		s3Flag result = s3RunClient(20);
+		//s3Flag result = s3RunClient( ,20);
 
-		switch (result)
+		/*switch (result)
 		{
 		case s3_ERROR:
 			break;
@@ -177,7 +178,7 @@ int main(int argc , char* argv[])
 			if (ContactIndex >= 0)
 			{
 				s3AddMessage(&msgBuffers[ContactIndex], s3GetLastRecvs3Message(), 0);
-				contactList.contacts[ContactIndex].s3MessageCount++;
+				contactList.contacts[ContactIndex].messageCount++;
 			}
 			else
 			{
@@ -185,7 +186,7 @@ int main(int argc , char* argv[])
 				sprintf(buffer, "%llu", lphone);
 				int index = s3AddContact(s_server, &contactList, buffer, lphone);
 
-				contactList.data[index].s3MessageCount++;
+				contactList.data[index].messageCount++;
 				UserChannel++;
 				// whic last added contact
 				s3AddMessage(&msgBuffers[index], s3GetLastRecvs3Message(), 0);
@@ -233,7 +234,7 @@ int main(int argc , char* argv[])
 			break;
 		default:
 			break;
-		}
+		}*/
 
 		LastTime = ElapsedTime;
 
@@ -356,7 +357,7 @@ int main(int argc , char* argv[])
 				buffer[strlen(buffer) - 1] = 0;
 				setColor(CB_WHITE);
 
-				strcpy(contactList.data[channel].info, buffer);
+				strcpy(contactList.contacts[channel].info, buffer);
 				screenChange = s3_TRUE;
 			}
 
@@ -378,7 +379,7 @@ int main(int argc , char* argv[])
 
 						msgBuffers[UserChannel - 1] = tmpBuf;
 
-						contactList.data[channel] = contactList.data[UserChannel - 1];
+						contactList.contacts[channel] = contactList.contacts[UserChannel - 1];
 
 						contactList.Size--;
 						UserChannel--;
@@ -416,7 +417,7 @@ int main(int argc , char* argv[])
 							s3Flag result;
 
 
-								result = s3Sends3Message(s_server, &contactList.data[channel], channel);
+								result = s3Sends3Message(s_server, &contactList.contacts[channel], channel);
 
 								switch (result)
 								{

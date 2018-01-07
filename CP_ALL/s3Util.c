@@ -290,7 +290,7 @@ s3Flag s3RecvMsg(SOCKET s, s3Flag* flagBuffer)
 
 s3Flag s3RecvToken(SOCKET s, Token* data)
 {
-	//Token data;
+
 	int rec = recv(s, (char*)data, sizeof(Token), 0);
 
 	if (rec > 0)
@@ -360,11 +360,11 @@ s3Flag s3Handles3Messages(s3ClientList * clist,  s3ClientProperty* CP)
 	char* fileName = tokenToCharDB(targetID);
 	FILE * fi = fopen(fileName, "rb");
 
+
+	    s3SendMsg(CP->socket, s3_INCOMING_MSG);
+
 		for (i = 0; i < CP->msgCounter; i++)
 		{
-			static fd_set readfds;
-
-
 				Token senderPhone;
 				fread(&senderPhone, sizeof(Token), 1, fi);
 				int bufferSize;
@@ -372,7 +372,7 @@ s3Flag s3Handles3Messages(s3ClientList * clist,  s3ClientProperty* CP)
 				fread(buffer, bufferSize, 1, fi);
 
 				s3Flag  msg;
-				s3SendMsg(CP->socket, s3_INCOMING_MSG);
+				
 
 				s3RecvMsg(CP->socket, &msg);//s3_ACCEPT
 
@@ -382,23 +382,9 @@ s3Flag s3Handles3Messages(s3ClientList * clist,  s3ClientProperty* CP)
 
 				s3SendBuffer(CP->socket, buffer, bufferSize);
 
+				s3RecvMsg(CP->socket, &msg);// achk
 
-
-
-					FD_ZERO(&readfds);
-
-					//add master socket to fd set
-					FD_SET(CP->socket, &readfds);
-					struct timeval tm = { 0 ,0 };
-					tm.tv_usec = 10;
-					int act = select(0, &readfds, 0, 0, &tm);
-					if (FD_ISSET(CP->socket, &readfds))
-					{
-						puts("> in comm s3Message ");
-						s3RecvMsg(CP->socket, &msg);
-						s3HandleConnection(clist, targetID, msg);
-						puts("> in comm Out");
-					}
+				s3SendMsg(CP->socket, s3_CONTINUE);
 
 
 		}

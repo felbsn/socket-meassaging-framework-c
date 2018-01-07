@@ -23,7 +23,7 @@ struct s3Contact_s
 	Token id;
 	Token phoneNo;
 	s3MessageBuffer msgBuffer;
-	int s3MessageCount;
+	int messageCount;
 };
 typedef struct s3Contact_s s3Contact;
 
@@ -53,3 +53,7 @@ int s3AddContact(SOCKET serverSocket, s3ContactList* contactList, char* infoStr,
 
 // send buffer typed s3Message to selected contact
 s3Flag s3Sends3Message(SOCKET serverSocket, s3Contact* contact, int bufferChannel);
+
+s3Flag s3HandleMessages(s3ContactList* contactList, Token phone);
+
+s3Flag s3GetContactID(SOCKET s_server, s3Contact *contact);

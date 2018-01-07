@@ -7,11 +7,13 @@
 
 #include "s3DataTypes.h"
 #include "s3InputHandler.h"
+#include "s3ClientUtils.h"
+#include "s3MessageHandler.h"
 #include "s3Util.h"
-#include  <winsock2.h>
-#include	 <stdio.h>
-#include	 <stdlib.h>
-#include	 <math.h>
+#include <winsock2.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
 
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
 #define _CRT_SECURE_NO_WARNINGS
@@ -29,4 +31,4 @@ char* s3GetLastRecvs3Message();
 
 s3Flag s3Reconnect(Token* userID);
 
-s3Flag s3RunClient(unsigned int TimeoutMicroSecs);
+s3Flag s3RunClient(s3ContactList *contactList, unsigned int TimeoutMicroSecs);
