@@ -46,7 +46,7 @@ s3Contact NewContactProtoype(const char* info, Token phoneNo)
 {
 	s3Contact contact;
 	contact.id = -1;
-	contact.messageCount = 1;
+	contact.s3MessageCount = 1;
 	contact.ClientIndex = 0;
 	int infoLen = strlen(info);
 	strncpy(contact.info, info, infoLen);
@@ -111,7 +111,7 @@ int s3AddContactEx(s3ContactList* contactList, char* infoStr, Token phoneNo, Tok
 
 
 	contactList->data[index].id = id;
-	contactList->data[index].messageCount = 0;
+	contactList->data[index].s3MessageCount = 0;
 	contactList->data[index].phoneNo = phoneNo;
 	strcpy(contactList->data[index].info, infoStr);
 
@@ -141,7 +141,7 @@ int s3AddContactRx(s3ContactList* contactList, char* infoStr, Token phoneNo, Tok
 	// add to last
 
 	contactList->data[contactList->Size].id = id;
-	contactList->data[contactList->Size].messageCount = 0;
+	contactList->data[contactList->Size].s3MessageCount = 0;
 	contactList->data[contactList->Size].phoneNo = phoneNo;
 	strcpy(contactList->data[contactList->Size].info, infoStr);
 	contactList->Size++;
@@ -184,7 +184,7 @@ int s3AddContact(SOCKET serverSocket, s3ContactList* contactList, char* infoStr,
 	}
 }
 
-s3Flag s3SendMessage(SOCKET serverSocket, s3Contact* contact, int bufferChannel)
+s3Flag s3Sends3Message(SOCKET serverSocket, s3Contact* contact, int bufferChannel)
 {
 	s3Flag msg;
 	int res;

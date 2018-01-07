@@ -1,7 +1,7 @@
 
 /*
 #		Client utility tools
-#		Helps managing contacts and message buffers
+#		Helps managing contacts and s3Message buffers
 #
 */
 #pragma once
@@ -23,7 +23,7 @@ struct s3Contact_s
 	Token phoneNo;
 	//reserved index for later usage
 	int ClientIndex;
-	int messageCount;
+	int s3MessageCount;
 };
 typedef struct s3Contact_s s3Contact;
 
@@ -51,5 +51,5 @@ s3Flag s3InitContactList(s3ContactList* contactList);
 // contact adder , initaliser
 int s3AddContact(SOCKET serverSocket, s3ContactList* contactList, char* infoStr, Token phoneNo);
 
-// send buffer typed message to selected contact
-s3Flag s3SendMessage(SOCKET serverSocket, s3Contact* contact, int bufferChannel);
+// send buffer typed s3Message to selected contact
+s3Flag s3Sends3Message(SOCKET serverSocket, s3Contact* contact, int bufferChannel);

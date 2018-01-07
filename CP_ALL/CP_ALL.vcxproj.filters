@@ -33,10 +33,10 @@
     <ClInclude Include="s3Util.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ConsoleHandler.h">
+    <ClInclude Include="option.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="option.h">
+    <ClInclude Include="s3MessageHandler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -60,6 +60,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="s3Client.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="s3MessageHandler.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

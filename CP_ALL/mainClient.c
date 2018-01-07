@@ -4,13 +4,15 @@
 #ifdef CLIENT
 
 
-
+#include "s3MessageHandler.h"
 #include "s3ClientUtils.h"
 #include "s3Client.h"
 
+
+
 #include <stdlib.h>
 #include <stdio.h>
-#include "ConsoleHandler.h"
+
 #include <conio.h>
 #pragma comment(lib, "ws2_32.lib")
 
@@ -19,6 +21,100 @@
 
 int main(int argc , char* argv[])
 {
+	system("cls");
+
+
+
+	//s3DrawFrame(C_CYAN, 1, 1, 13, 13);
+
+	//s3DrawBox(CB_BLUE, 2, 2, 10, 10);
+
+	//_getch();
+
+	/*
+
+	system("mode 100,60");
+	s3InitMessageHandler(1024, 768);
+	system("color 70");
+
+	s3MessageBuffer mybuff;
+	s3InitMessageBuffers(&mybuff, 1);
+
+
+	s3AddMessage(&mybuff, "heyy o are you rady you mother what if there was any of them there are if", s3_FROM_CONTACT);
+	s3AddMessage(&mybuff, "heyy o are you rady you mother what if there was any of them there are if", s3_FROM_OWN);
+	s3AddMessage(&mybuff, "11111111111111111111111111111111111111111111111", s3_FROM_OWN);
+	s3AddMessage(&mybuff, "2222222222222222222222222222222222222222222222222222222222222", s3_FROM_CONTACT);
+	s3AddMessage(&mybuff, "heyy o are you rady you mother what if there was any of them there are if", s3_FROM_OWN);
+
+	
+	int space = 18;
+
+	static char rebuff[4096];
+	for (size_t i = 0; i < sizeof(rebuff)-1; i++)
+	{
+		rebuff[i] = ' ';
+	}
+	rebuff[4095] = 0;
+
+
+	_getch();
+	int cahnger = 0;
+	float offset = 0;
+
+	DWORD delay = 0;
+	DWORD timerOld  = GetTickCount();
+	DWORD timerNew;
+	do
+	{
+		timerNew = GetTickCount();
+		delay = timerNew - timerOld;
+		timerOld = timerNew;
+
+		if (delay < 30) delay = 30 ;
+
+		if (GetAsyncKeyState(VK_UP))
+		{
+			offset += delay * 0.005f;
+
+			cahnger = 1;
+		}
+
+		if (GetAsyncKeyState(VK_RIGHT))
+		{
+
+			cahnger = 1;
+		}
+		
+		if (GetAsyncKeyState(VK_DOWN))
+		{
+			offset -= delay * 0.005f;
+			offset < 0 ? offset = 0 : 0;
+			cahnger = 1;
+		}
+
+		if (cahnger)
+		{
+			gotoxy(0, 0);
+			printf(rebuff);
+
+		
+		s3DrawMessageBox(2, 2, 40, 20, 18, offset, mybuff);
+		setColor(CB_CYAN);
+		s3DrawFrame(C_CYAN, 1, 1, 42, 22);
+
+		gotoxy(21, 2);
+		printf("%f", offset);
+
+
+		cahnger = 0;
+
+		}
+
+
+	} while (1);
+
+	*/
 	//system("mode 60,40");
 	//system("cls");
 	//system("color 70");
@@ -28,15 +124,15 @@ int main(int argc , char* argv[])
 	//
 	//SetupConsolehandler(1024, 768);
 	//
-	//MessageBuffer mbuf;
-	//InitMessageBuffers(&mbuf, 1);
+	//s3MessageBuffer mbuf;
+	//Inits3MessageBuffers(&mbuf, 1);
 	//
-	//AddMessage(&mbuf, "merhaba kardesim ben agzerbeycandan gelmisem sana bakirem ", 0);
-	//AddMessage(&mbuf, "ooo hosgelmissen aybalam ben de seni ozlirem aa", 1);
-	//AddMessage(&mbuf, "ooo hosgelmissen aybalam ben de seni ozlirem aa", 1);
-	//AddMessage(&mbuf, "ooo hosgelmissen aybalam ben de seni ozlirem aa", 1);
+	//Adds3Message(&mbuf, "merhaba kardesim ben agzerbeycandan gelmisem sana bakirem ", 0);
+	//Adds3Message(&mbuf, "ooo hosgelmissen aybalam ben de seni ozlirem aa", 1);
+	//Adds3Message(&mbuf, "ooo hosgelmissen aybalam ben de seni ozlirem aa", 1);
+	//Adds3Message(&mbuf, "ooo hosgelmissen aybalam ben de seni ozlirem aa", 1);
 	//
-	//DrawMessageBox(2, 2, 30, 10, 50, mbuf);
+	//Draws3MessageBox(2, 2, 30, 10, 50, mbuf);
 	//
 	//
 	//_getch();
@@ -79,16 +175,17 @@ int main(int argc , char* argv[])
 	system("cls");
 	system("color 70");
 
-	// create message buffers for each channel / person
-	MessageBuffer msgBuffers[256];
+	// create s3Message buffers for each channel / person
+	s3MessageBuffer msgBuffers[256];
 
-	InitMessageBuffers(msgBuffers, 256);
 
 	// bind 
-	SetupConsolehandler(ScreenWidth , ScreenHeight);
+	s3InitMessageHandler(ScreenWidth , ScreenHeight);
+
+	s3InitMessageBuffers(msgBuffers, 256);
 
 
-	DrawBox(CB_CYAN, ScreenHeight / 2 - 3, ScreenWidth / 2 - 18, 6, 36);
+	s3DrawBox(CB_CYAN, ScreenHeight / 2 - 3, ScreenWidth / 2 - 18, 6, 36);
 	setColor(CB_CYAN);
 	gotoxy(ScreenHeight / 2-2 , ScreenWidth / 2 - 17);
 	printf("Enter Client phone number");
@@ -161,7 +258,7 @@ int main(int argc , char* argv[])
 	while (isRun)
 	{
 
-		// check every 1 second incoming messages
+		// check every 1 second incoming s3Messages
 		ElapsedTime = GetTickCount();
 		if (ElapsedTime - LastTime > 1000)
 		{
@@ -181,8 +278,8 @@ int main(int argc , char* argv[])
 			int ContactIndex = s3FindContactIndexByPhone(&contactList, lphone);
 			if (ContactIndex >= 0)
 			{
-				AddMessage(&msgBuffers[ContactIndex], s3GetLastRecvMessage(), 0);
-				contactList.data[ContactIndex].messageCount++;
+				s3AddMessage(&msgBuffers[ContactIndex], s3GetLastRecvs3Message(), 0);
+				contactList.data[ContactIndex].s3MessageCount++;
 			}
 			else
 			{
@@ -190,22 +287,22 @@ int main(int argc , char* argv[])
 				sprintf(buffer, "%llu", lphone);
 				int index = s3AddContact(s_server, &contactList, buffer, lphone);
 
-				contactList.data[index].messageCount++;
+				contactList.data[index].s3MessageCount++;
 				UserChannel++;
 				// whic last added contact
-				AddMessage(&msgBuffers[index], s3GetLastRecvMessage(), 0);
+				s3AddMessage(&msgBuffers[index], s3GetLastRecvs3Message(), 0);
 			}
 
-			consoleLog( "incoming message" , s3_DEFAULT);
+			s3ConsoleLog( "incoming s3Message" , s3_DEFAULT);
 			screenChange = s3_TRUE;
 
 		}
 		break;
 		case s3_SERVER_ERROR:
-		{	consoleLog("SERVER_ERROR" ,s3_ERROR);
+		{	s3ConsoleLog("SERVER_ERROR" ,s3_ERROR);
 			s3KeyGetAltToggleReset();
 
-			DrawBox(CB_RED, ScreenHeight / 2 - 3, ScreenWidth / 2 - 18, 6, 36);
+			s3DrawBox(CB_RED, ScreenHeight / 2 - 3, ScreenWidth / 2 - 18, 6, 36);
 			setColor(CB_RED);
 			gotoxy(ScreenHeight / 2 - 2, ScreenWidth / 2 - 17);
 			printf("SERVER_ERROR");
@@ -216,7 +313,7 @@ int main(int argc , char* argv[])
 		}break;
 		case s3_OVERRIDE_ERROR:
 			{
-			DrawBox(CB_RED, ScreenHeight / 2 - 3, ScreenWidth / 2 - 18, 6, 36);
+			s3DrawBox(CB_RED, ScreenHeight / 2 - 3, ScreenWidth / 2 - 18, 6, 36);
 			setColor(CB_RED);
 			gotoxy(ScreenHeight / 2 - 2, ScreenWidth / 2 - 17);
 			printf("OVERRIDE_ERROR");
@@ -225,16 +322,16 @@ int main(int argc , char* argv[])
 			setColor(CB_WHITE);
 			}break;
 		case s3_USER_OFFLINE:
-			consoleLog("user offline" , s3_DEFAULT);
+			s3ConsoleLog("user offline" , s3_DEFAULT);
 			break;
 		case s3_USER_NOT_FOUND:
-			consoleLog("user not found" ,s3_ERROR);
+			s3ConsoleLog("user not found" ,s3_ERROR);
 			break;
 		case s3_USER_ID_INVALID:
-			consoleLog("user id invalid" ,s3_ERROR);
+			s3ConsoleLog("user id invalid" ,s3_ERROR);
 			break;
 		case s3_TIMEOUT:
-			consoleLog("timeout on receive",s3_ERROR);
+			s3ConsoleLog("timeout on receive",s3_ERROR);
 			break;
 		default:
 			break;
@@ -282,7 +379,7 @@ int main(int argc , char* argv[])
 			if (s3GetKeyState('a', s3Key_Pressed) || s3GetKeyState('A', s3Key_Pressed))
 			{
 				s3KeyGetAltToggleReset();
-				DrawBox(CB_YELLOW, ScreenHeight / 2 - 3, ScreenWidth / 2 - 18, 6, 36);
+				s3DrawBox(CB_YELLOW, ScreenHeight / 2 - 3, ScreenWidth / 2 - 18, 6, 36);
 				setColor(CB_YELLOW);
 				gotoxy(ScreenHeight / 2 - 2, ScreenWidth / 2 - 17);
 				printf("Enter phone number");
@@ -299,7 +396,7 @@ int main(int argc , char* argv[])
 					int ContactIndex = s3FindContactIndexByPhone(&contactList, phone);
 					if (ContactIndex < 0)
 					{
-						DrawBox(CB_YELLOW, ScreenHeight / 2 - 3, ScreenWidth / 2 - 18, 6, 36);
+						s3DrawBox(CB_YELLOW, ScreenHeight / 2 - 3, ScreenWidth / 2 - 18, 6, 36);
 
 						setColor(CB_YELLOW);
 						gotoxy(ScreenHeight / 2 - 2, ScreenWidth / 2 - 17);
@@ -313,35 +410,35 @@ int main(int argc , char* argv[])
 						if (res >= 0)
 						{
 
-							consoleLog("user added succesffully",s3_SUCCESS);
+							s3ConsoleLog("user added succesffully",s3_SUCCESS);
 							UserChannel++;
 						}
 						else
 						{
 							if(res == s3_ERROR)
-							consoleLog("Server Offline" , s3_ERROR);
+							s3ConsoleLog("Server Offline" , s3_ERROR);
 							else
 								if (res == s3_USER_NOT_FOUND)
 								{
-									consoleLog("User not found on server", s3_ERROR);
+									s3ConsoleLog("User not found on server", s3_ERROR);
 								}
 								else
 								{
-									consoleLog("Undefined Error" , s3_ERROR);
+									s3ConsoleLog("Undefined Error" , s3_ERROR);
 								}
 						}
 
 					}
 					else
 					{
-						consoleLog("allready added" ,s3_ERROR);
+						s3ConsoleLog("allready added" ,s3_ERROR);
 					}
 
 
 				}
 				else
 				{
-					consoleLog("PhoneNo corresponds with client" , s3_ERROR);
+					s3ConsoleLog("PhoneNo corresponds with client" , s3_ERROR);
 				}
 
 				screenChange = s3_TRUE;
@@ -350,7 +447,7 @@ int main(int argc , char* argv[])
 			if (s3GetKeyState('e', s3Key_Pressed) || s3GetKeyState('E', s3Key_Pressed))
 			{
 				s3KeyGetAltToggleReset();
-				DrawBox(CB_YELLOW, ScreenHeight / 2 - 3, ScreenWidth / 2 - 18, 6, 36);
+				s3DrawBox(CB_YELLOW, ScreenHeight / 2 - 3, ScreenWidth / 2 - 18, 6, 36);
 
 				setColor(CB_YELLOW);
 				gotoxy(ScreenHeight / 2 - 2, ScreenWidth / 2 - 17);
@@ -377,7 +474,7 @@ int main(int argc , char* argv[])
 
 						msgBuffers[channel].index = 0;
 
-						MessageBuffer tmpBuf = msgBuffers[channel];
+						s3MessageBuffer tmpBuf = msgBuffers[channel];
 
 						msgBuffers[channel] = msgBuffers[UserChannel - 1];
 
@@ -401,11 +498,11 @@ int main(int argc , char* argv[])
 
 			if (s3GetKeyState('r', s3Key_Pressed) || s3GetKeyState('R', s3Key_Pressed))
 			{
-				consoleLog("Trying to reconnect" , s3_DEFAULT);
+				s3ConsoleLog("Trying to reconnect" , s3_DEFAULT);
 				if (s3Reconnect(&UserID) == s3_SUCCESS)
-					consoleLog("Done!" ,s3_DONE);
+					s3ConsoleLog("Done!" ,s3_DONE);
 				else
-					consoleLog("Failed!" , s3_FAIL);
+					s3ConsoleLog("Failed!" , s3_FAIL);
 			}
 
 			s3SeekKeyDown();
@@ -421,33 +518,33 @@ int main(int argc , char* argv[])
 							s3Flag result;
 
 
-								result = s3SendMessage(s_server, &contactList.data[channel], channel);
+								result = s3Sends3Message(s_server, &contactList.data[channel], channel);
 
 								switch (result)
 								{
 								case s3_SUCCESS:
-									AddMessage(&msgBuffers[channel], s3GetBufferChannel(channel), 1);
+									s3AddMessage(&msgBuffers[channel], s3GetBufferChannel(channel), s3_FROM_OWN);
 									s3ResetBufferChannel(channel);
-									consoleLog("succesfully send", s3_SUCCESS);
+									s3ConsoleLog("succesfully send", s3_SUCCESS);
 									break;
 								case s3_NOT_FOUND:
-									consoleLog("user not found" , s3_FAIL);
+									s3ConsoleLog("user not found" , s3_FAIL);
 									break;
 								case s3_USER_OFFLINE:
-									consoleLog("user offline", s3_FAIL);
+									s3ConsoleLog("user offline", s3_FAIL);
 									break;
 								case s3_USER_NOT_FOUND:
-									consoleLog("user not found", s3_FAIL);
+									s3ConsoleLog("user not found", s3_FAIL);
 									break;
 								case s3_USER_ID_INVALID:
-									consoleLog("user id invalid", s3_FAIL);
+									s3ConsoleLog("user id invalid", s3_FAIL);
 									break;
 								case s3_TIMEOUT:
-									consoleLog("timeout on send", s3_FAIL);
+									s3ConsoleLog("timeout on send", s3_FAIL);
 									//s3SendMsg(s_server, s3_TIMEOUT);
 									break;
 								case s3_FAIL:
-									consoleLog("fail on send", s3_FAIL);
+									s3ConsoleLog("fail on send", s3_FAIL);
 									//s3SendMsg(s_server, s3_TIMEOUT);
 									break;
 								default:
@@ -459,7 +556,7 @@ int main(int argc , char* argv[])
 						}
 						else
 						{
-							consoleLog("Invalid entry", s3_FAIL);
+							s3ConsoleLog("Invalid entry", s3_FAIL);
 						}
 					}
 					else
@@ -478,47 +575,16 @@ int main(int argc , char* argv[])
 			clear();
 
 
-			/// draw message boxes
-
-			int i;
-
-			///
-			//int MaxPrint = max(msgBuffers[channel].index - 10, 0);
-			//int boxColor = 6;
-
-
+			/// draw s3Message boxes
+			setColor(CB_RED);
+			s3DrawFrame(C_CYAN, 2, 19, ScreenHeight - 10, 70);
 			if(UserChannel > 0)
-			DrawMessageBox(1, 20, ScreenHeight - 20, 30, 90, msgBuffers[channel]);
+			s3DrawMessageBox(3, 20, ScreenHeight - 10, 30,70, 0, msgBuffers[channel]);
 
-
-
-			// draw contact list
-/*
-			for ( i = 0 ; i < contactList.Size; i++)
-			{
-				if (i == channel)
-				{
-					contactList.data[i].messageCount = 0;
-					//DrawBox(5, i * 4 + 3, 23, 3, 2);
-					DrawBoxedStrSel(6,5 ,contactList.data[i].info, contactList.data[i].phoneNo, contactList.data[i].messageCount, i * 4 + 3, 3);
-					//DrawBoxedStr(6, contactList.data[i].info, contactList.data[i].messageCount, i * 4 + 3, 3);
-				}
-				else
-				{
-					DrawBoxedStr(2, contactList.data[i].info, contactList.data[i].phoneNo, contactList.data[i].messageCount, i * 4 + 3,2);
-				}
-
-
-			}
-			for ( ; i < UserChannel; i++)
-			{
-				DrawBox(2, i * 4 + 3, 2, 3, 20);
-			}
-*/
 
 			// current state box
 
-			DrawBox(CB_BLUE, ScreenHeight - 6 , 2 , 6, 20);
+			s3DrawBox(CB_BLUE, ScreenHeight - 6 , 2 , 6, 20);
 			setColor(CB_BLUE);
 			gotoxy(ScreenHeight - 5, 3);
 			printf("Channel: %d", channel);
@@ -530,12 +596,12 @@ int main(int argc , char* argv[])
 
 
 			// information console
-			DrawBox(CB_BLUE, ScreenHeight - 6, ScreenWidth - 20, 6, 20);
+			s3DrawBox(CB_BLUE, ScreenHeight - 6, ScreenWidth - 20, 6, 20);
 			setColor(CB_BLUE);
 			int maxConsoleLines = max(msgBuffers[255].index - 6, 0);
 			int consoleLineLimit = 6;
 
-			DrawConsoleBox(ScreenHeight - 6, ScreenWidth - 20, 6, 20, 20);
+			s3DrawConsoleBox(ScreenHeight - 6, ScreenWidth - 20, 6, 20, 20);
 
 
 			setColor(CB_WHITE);
@@ -544,7 +610,7 @@ int main(int argc , char* argv[])
 
 
 			// input box draw
-			DrawBox(CB_YELLOW, ScreenHeight-6, 23, 6, 56);
+			s3DrawBox(CB_YELLOW, ScreenHeight-6, 23, 6, 56);
 			setColor(CB_YELLOW);
 			char* channelData = s3GetBufferChannel(channel);
 			int len = s3GetBufferChannelLen(channel);
@@ -573,7 +639,7 @@ int main(int argc , char* argv[])
 			//draw info bar
 			gotoxy(0, 0);
 
-			DrawInfoBar(AltStatus);
+			s3DrawInfoBar(AltStatus);
 
 			setColor(CB_WHITE);
 			screenChange = s3_FALSE;

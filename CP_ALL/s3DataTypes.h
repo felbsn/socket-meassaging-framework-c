@@ -102,19 +102,19 @@ struct s3ClientList_s
 typedef struct s3ClientList_s s3ClientList;
 
 
-struct s3MessageData_s
+struct s3s3MessageData_s
 {
 	Token UserID;
 	int Count;
 };
-typedef struct s3MessageData_s s3MessageData;
+typedef struct s3s3MessageData_s s3s3MessageData;
 
 
-struct s3MessageQuene_s
+struct s3s3MessageQuene_s
 {
 	int Size;
 	int Capacity;
-	s3MessageData* msgData;
+	s3s3MessageData* msgData;
 
 };
-typedef struct s3MessageQuene_s s3MessageQuene;
+typedef struct s3s3MessageQuene_s s3s3MessageQuene;

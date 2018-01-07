@@ -213,7 +213,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="ConsoleHandler.h" />
+    <ClInclude Include="s3MessageHandler.h" />
     <ClInclude Include="option.h" />
     <ClInclude Include="s3Client.h" />
     <ClInclude Include="s3ClientUtils.h" />
@@ -228,6 +228,7 @@
     <ClCompile Include="s3Client.c" />
     <ClCompile Include="s3ClientUtils.c" />
     <ClCompile Include="s3InputHandler.c" />
+    <ClCompile Include="s3MessageHandler.c" />
     <ClCompile Include="s3Server.c" />
     <ClCompile Include="s3Util.c" />
   </ItemGroup>

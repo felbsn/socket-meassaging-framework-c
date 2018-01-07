@@ -23,7 +23,7 @@ Token s3GetLastRecvPhone()
 	return _lastReceivedPhoneNo;
 }
 
-char* s3GetLastRecvMessage()
+char* s3GetLastRecvs3Message()
 {
 	return s3GetRxBuffer();
 }

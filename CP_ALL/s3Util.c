@@ -314,13 +314,13 @@ int s3SendToken(SOCKET s, Token data)
 }
 
 
-s3Flag s3AddQueneItem(s3ClientList * clist, Token targetID, Token senderPhone, char* message, int messageLen)
+s3Flag s3AddQueneItem(s3ClientList * clist, Token targetID, Token senderPhone, char* s3Message, int s3MessageLen)
 {
 
 	FILE *fa = fopen(tokenToCharDB(targetID), "ab");
 	fwrite(&senderPhone, sizeof(Token), 1, fa);
-	fwrite(&messageLen, sizeof(int), 1, fa);
-	fwrite(message, messageLen, 1, fa);
+	fwrite(&s3MessageLen, sizeof(int), 1, fa);
+	fwrite(s3Message, s3MessageLen, 1, fa);
 
 
 	clist->data[targetID].msgCounter++;
@@ -329,7 +329,7 @@ s3Flag s3AddQueneItem(s3ClientList * clist, Token targetID, Token senderPhone, c
 	return s3_SUCCESS;
 }
 
-/*s3Flag s3RemoveQueneItem(s3MessageQuene* msgQuene, int index)
+/*s3Flag s3RemoveQueneItem(s3s3MessageQuene* msgQuene, int index)
 {
 	if (index < (msgQuene->Size - 1))
 	{
@@ -348,7 +348,7 @@ s3Flag s3AddQueneItem(s3ClientList * clist, Token targetID, Token senderPhone, c
 }*/
 
 
-s3Flag s3HandleMessages(s3ClientList * clist,  s3ClientProperty* CP)
+s3Flag s3Handles3Messages(s3ClientList * clist,  s3ClientProperty* CP)
 {
 	static char buffer[2048];
 	if (!CP->msgCounter)
@@ -394,7 +394,7 @@ s3Flag s3HandleMessages(s3ClientList * clist,  s3ClientProperty* CP)
 					int act = select(0, &readfds, 0, 0, &tm);
 					if (FD_ISSET(CP->socket, &readfds))
 					{
-						puts("> in comm message ");
+						puts("> in comm s3Message ");
 						s3RecvMsg(CP->socket, &msg);
 						s3HandleConnection(clist, targetID, msg);
 						puts("> in comm Out");
@@ -586,7 +586,7 @@ int s3HandleConnection(s3ClientList * clist,Token index, s3Flag flag)
 
 						if (msg != s3_ACCEPT)
 						{
-							printf("Target not accept Message msg -> %d \n", msg);
+							printf("Target not accept s3Message msg -> %d \n", msg);
 							result = (s3Flag)s3SendMsg(CP.socket, s3_FAIL);
 							if (!result) {
 								puts(" #ERROR sending Final Word");
@@ -634,7 +634,7 @@ int s3HandleConnection(s3ClientList * clist,Token index, s3Flag flag)
 							puts(" #ERROR send s3_FOUND");
 							eraseClientByIndices(clist, index);
 
-							// send fail infomation message to receiver client
+							// send fail infomation s3Message to receiver client
 							result = (s3Flag)s3SendMsg(clist->data[id].socket, s3_FAIL);
 
 							return s3_FAIL;
@@ -740,7 +740,7 @@ int s3HandleConnection(s3ClientList * clist,Token index, s3Flag flag)
 
 						if (msg != s3_ACCEPT)
 						{
-							printf("Target not accept Message msg -> %d \n", msg);
+							printf("Target not accept s3Message msg -> %d \n", msg);
 							result = (s3Flag)s3SendMsg(CP.socket, s3_FAIL);
 							if (!result) {
 								puts(" #ERROR sending Final Word");
@@ -788,7 +788,7 @@ int s3HandleConnection(s3ClientList * clist,Token index, s3Flag flag)
 							puts(" #ERROR send s3_FOUND");
 							eraseClientByIndices(clist, index);
 
-							// send fail infomation message to receiver client
+							// send fail infomation s3Message to receiver client
 							result = (s3Flag)s3SendMsg(clist->data[id].socket, s3_FAIL);
 
 							return s3_FAIL;
@@ -877,11 +877,11 @@ s3Flag s3StoreServerData(s3ClientList * clist, char* storageFileName)
 	return s3_SUCCESS;
 }
 
-s3Flag s3InitMessageQuene(s3MessageQuene* msgQuene)
+s3Flag s3Inits3MessageQuene(s3s3MessageQuene* msgQuene)
 {
 	msgQuene->Capacity = 2;
 	msgQuene->Size = 0;
-	msgQuene->msgData = (s3MessageData*)malloc(msgQuene->Capacity * sizeof(s3MessageData));
+	msgQuene->msgData = (s3s3MessageData*)malloc(msgQuene->Capacity * sizeof(s3s3MessageData));
 
 
 	// be sure that count

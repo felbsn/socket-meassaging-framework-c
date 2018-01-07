@@ -25,7 +25,7 @@ s3Flag s3DestroyClient();
 
 Token s3GetLastRecvPhone();
 
-char* s3GetLastRecvMessage();
+char* s3GetLastRecvs3Message();
 
 s3Flag s3Reconnect(Token* userID);
 

@@ -10,10 +10,10 @@ static fd_set readfds;
 static s3Flag _s3_initStatus = s3_FALSE;
 static s3ClientList Clist = { 0 };
 
-// temporal buffer for incoming client messages
+// temporal buffer for incoming client s3Messages
 static s3Flag msgBuffer[15];
 static Token tokenBuffer[15];
-static s3MessageQuene msgQuene = { 0 };
+static s3s3MessageQuene msgQuene = { 0 };
 
 static char* s3_serverInfo;
 static int s3_serverInfoLen = 0;
@@ -84,7 +84,7 @@ s3Flag s3InitServer(char* serverInfoString, char* path, int portNumber)// , cons
 		s3InitRxBuffer();
 		s3InitTxBuffers();
 		s3InitClientList(&Clist);
-		s3InitMessageQuene(&msgQuene);
+		s3Inits3MessageQuene(&msgQuene);
 
 		SetDbPath(path);
 
@@ -221,7 +221,7 @@ s3Flag s3RunServer(int timeout)
 		}
 
 
-		puts("Welcome message sent successfully");
+		puts("Welcome s3Message sent successfully");
 
 
 
@@ -250,8 +250,8 @@ s3Flag s3RunServer(int timeout)
 
 			printf("socket result code: %d \n", result);
 
-			// send messages to new user
-			s3HandleMessages(&Clist, &Clist.data[index]);
+			// send s3Messages to new user
+			s3Handles3Messages(&Clist, &Clist.data[index]);
 			}
 		}
 		else
@@ -281,7 +281,7 @@ s3Flag s3RunServer(int timeout)
 			//get details of the client
 			//getpeername(s, (struct sockaddr*)&address, (int*)&addrlen);
 
-			//Check if it was for closing , and also read the incoming message
+			//Check if it was for closing , and also read the incoming s3Message
 
 			// status reading
 

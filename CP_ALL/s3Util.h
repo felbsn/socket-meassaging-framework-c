@@ -52,7 +52,7 @@ int s3HandleConnection(s3ClientList * clist,Token index, s3Flag flag);
 
 s3Flag s3StoreServerData(s3ClientList * clist, char* storageFileName);
 
-s3Flag s3InitMessageQuene(s3MessageQuene* msgQuene);
+s3Flag s3Inits3MessageQuene(s3s3MessageQuene* msgQuene);
 
 // !!! only for temporal usage !!!
 char* tokenToChar(Token userID);
@@ -61,7 +61,7 @@ char* tokenToCharDB(Token userID );
 
 void SetDbPath(const char *DBpath_in);
 
-s3Flag s3AddQueneItem(s3ClientList * clist, Token targetID, Token senderPhone, char* message, int messageLen );
+s3Flag s3AddQueneItem(s3ClientList * clist, Token targetID, Token senderPhone, char* s3Message, int s3MessageLen );
 
 
-s3Flag s3HandleMessages(s3ClientList * clist, s3ClientProperty* CP);
+s3Flag s3Handles3Messages(s3ClientList * clist, s3ClientProperty* CP);
