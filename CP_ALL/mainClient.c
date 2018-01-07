@@ -111,7 +111,7 @@ int main(int argc , char* argv[])
 
 	s3InitContactList(&contactList);
 	SOCKET s_server;
-	//
+	
 	if (s3InitClient("localhost", 8888, UserPhoneNumber, &UserID, 0) != s3_SUCCESS)
 	{
 		gotoxy(ScreenHeight / 2 , ScreenWidth / 2 - 17);
@@ -482,64 +482,13 @@ int main(int argc , char* argv[])
 
 			int i;
 
-			int screenSpace = ScreenHeight-10;
-			int MaxPrint = max(msgBuffers[channel].index - 10, 0);
-			int boxColor = 6;
-/*
-			if(UserChannel > channel)
-			for (i = msgBuffers[channel].index -1 ; i >= MaxPrint; i--)
-			{
-				int Padder = 25;
+			///
+			//int MaxPrint = max(msgBuffers[channel].index - 10, 0);
+			//int boxColor = 6;
 
-					int lineCount = msgBuffers[channel].data[i].lineCount;
-					if (screenSpace - (lineCount+1)  > 0)
-					{
-						screenSpace -= (lineCount+2);
-						//
 
-						if (msgBuffers[channel].data[i].isFromUser)
-						{
-							boxColor = 2;
-							int il = 0;
-
-								DrawBoxShaded(boxColor, screenSpace + il-1, Padder +30, lineCount + 2, 41);
-
-							for (il = 0; il < lineCount; il++)
-							{
-
-								setColor(ColorsBG[boxColor]);
-								gotoxy(screenSpace + il, Padder +30);
-								printf("%.*s %s", 40 - strlen(msgBuffers[channel].data[i].lines[il]), PaddingBuffer, msgBuffers[channel].data[i].lines[il]);
-
-							}
-								gotoxy(screenSpace + il, Padder + 62);
-							  printf("~%.*s", 8, ctime(&msgBuffers[channel].data[i].tm) + 11);
-							setColor(CB_WHITE);
-
-						}else
-						{
-						boxColor = 6;
-						int il = 0;
-
-								DrawBoxShaded(boxColor, screenSpace + il-1, Padder, lineCount + 2, 41);
-
-						for ( il = 0; il < lineCount; il++)
-						{
-
-							setColor(ColorsBG[boxColor]);
-							gotoxy(screenSpace+il, Padder+1);
-
-								printf("%s", msgBuffers[channel].data[i].lines[il]);
-						}
-						gotoxy(screenSpace + il, Padder+32);  printf("~%.*s",8,ctime(&msgBuffers[channel].data[i].tm) +11);
-						setColor(CB_WHITE);
-						}
-					}
-
-					screenSpace--;
-					screenSpace--;
-			}
-*/
+			if(UserChannel > 0)
+			DrawMessageBox(1, 20, ScreenHeight - 20, 30, 90, msgBuffers[channel]);
 
 
 

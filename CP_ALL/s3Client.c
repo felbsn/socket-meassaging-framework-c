@@ -212,7 +212,7 @@ s3Flag s3RunClient(unsigned int TimeoutMicroSecs)
 	FD_SET(s_server, &readfds);
 	static struct  timeval tm = { 0 };
 	tm.tv_usec = TimeoutMicroSecs;
-
+	
 	int activity;
 
 	if (TimeoutMicroSecs)
