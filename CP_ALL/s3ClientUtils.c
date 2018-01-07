@@ -26,7 +26,7 @@ int BinarySearchPhone(s3Contact arr[], int l, int r, Token phoneNum)
 int s3FindContactIndexByPhone(s3ContactList* contactList, Token phoneNo)
 {
 	int i = 0;
-	while (i < contactList->Size && contactList->data[i].phoneNo != phoneNo)
+	while (i < contactList->Size && contactList->contacts[i].phoneNo != phoneNo)
 	{
 		i++;
 	}
@@ -47,7 +47,7 @@ s3Contact NewContactProtoype(const char* info, Token phoneNo)
 	s3Contact contact;
 	contact.id = -1;
 	contact.s3MessageCount = 1;
-	contact.ClientIndex = 0;
+	//contact.ClientIndex = 0;
 	int infoLen = strlen(info);
 	strncpy(contact.info, info, infoLen);
 
@@ -59,9 +59,9 @@ s3Flag s3InitContactList(s3ContactList* contactList)
 	contactList->Capacity = 2;
 	contactList->Size = 0;
 	contactList->ContactCount = 0;
-	contactList->data = (s3Contact*)calloc(contactList->Capacity, sizeof(s3Contact));
+	contactList->contacts = (s3Contact*)calloc(contactList->Capacity, sizeof(s3Contact));
 
-	if (contactList->data)
+	if (contactList->contacts)
 		return s3_SUCCESS;
 	else
 		return s3_FAIL;
@@ -74,19 +74,19 @@ int s3AddContactEx(s3ContactList* contactList, char* infoStr, Token phoneNo, Tok
 	if (contactList->Size >= contactList->Capacity)
 	{
 		contactList->Capacity += 10;
-		contactList->data = (s3Contact*)realloc(contactList->data, contactList->Capacity * sizeof(s3Contact));
-		if (!contactList->data) { return s3_FAIL; }
+		contactList->contacts = (s3Contact*)realloc(contactList->contacts, contactList->Capacity * sizeof(s3Contact));
+		if (!contactList->contacts) { return s3_FAIL; }
 		int j = 0;
 		for (j = contactList->Capacity - 1; j <= contactList->Capacity - 10; j++)
 		{
-			contactList->data[j].ClientIndex = -1;
+//			contactList->data[j].ClientIndex = -1;
 		}
 	}
 
 	// perform an insertion algorithm
 	int i = 0;
 
-	while (i < contactList->Size && phoneNo > contactList->data[i].phoneNo)
+	while (i < contactList->Size && phoneNo > contactList->contacts[i].phoneNo)
 	{
 		i++;
 	}
@@ -97,7 +97,7 @@ int s3AddContactEx(s3ContactList* contactList, char* infoStr, Token phoneNo, Tok
 	{
 		while (i >= index)
 		{
-			contactList->data[i + 1] = contactList->data[i];
+			contactList->contacts[i + 1] = contactList->contacts[i];
 			i--;
 		}
 	}
@@ -110,17 +110,17 @@ int s3AddContactEx(s3ContactList* contactList, char* infoStr, Token phoneNo, Tok
 
 
 
-	contactList->data[index].id = id;
-	contactList->data[index].s3MessageCount = 0;
-	contactList->data[index].phoneNo = phoneNo;
-	strcpy(contactList->data[index].info, infoStr);
+	contactList->contacts[index].id = id;
+	contactList->contacts[index].s3MessageCount = 0;
+	contactList->contacts[index].phoneNo = phoneNo;
+	strcpy(contactList->contacts[index].info, infoStr);
 
 	i = 0;
-	while (contactList->data[i].ClientIndex >= 0)
-	{
-		i++;
-	}
-	contactList->data[index].ClientIndex = i;
+//	while (contactList->data[i].ClientIndex >= 0)
+	//{
+	//	i++;
+	//}
+//	contactList->data[index].ClientIndex = i;
 
 	contactList->ContactCount++;
 
@@ -134,16 +134,16 @@ int s3AddContactRx(s3ContactList* contactList, char* infoStr, Token phoneNo, Tok
 	if (contactList->Size >= contactList->Capacity)
 	{
 		contactList->Capacity += 10;
-		contactList->data = (s3Contact*)realloc(contactList->data, contactList->Capacity * sizeof(s3Contact));
-		if (!contactList->data) { return s3_ERROR; }
+		contactList->contacts = (s3Contact*)realloc(contactList->contacts, contactList->Capacity * sizeof(s3Contact));
+		if (!contactList->contacts) { return s3_ERROR; }
 	}
 
 	// add to last
 
-	contactList->data[contactList->Size].id = id;
-	contactList->data[contactList->Size].s3MessageCount = 0;
-	contactList->data[contactList->Size].phoneNo = phoneNo;
-	strcpy(contactList->data[contactList->Size].info, infoStr);
+	contactList->contacts[contactList->Size].id = id;
+	contactList->contacts[contactList->Size].s3MessageCount = 0;
+	contactList->contacts[contactList->Size].phoneNo = phoneNo;
+	strcpy(contactList->contacts[contactList->Size].info, infoStr);
 	contactList->Size++;
 
 
@@ -175,6 +175,10 @@ int s3AddContact(SOCKET serverSocket, s3ContactList* contactList, char* infoStr,
 				{
 					return s3_USER_NOT_FOUND;
 				}
+		}
+		else
+		{
+			return s3_ERROR;
 		}
 
 	}

@@ -8,6 +8,7 @@
 
 #include "s3DataTypes.h"
 #include "s3InputHandler.h"
+#include "s3MessageHandler.h"
 #include "s3Util.h"
 #include  <winsock2.h>
 #include	 <stdio.h>
@@ -21,15 +22,14 @@ struct s3Contact_s
 	char info[20];
 	Token id;
 	Token phoneNo;
-	//reserved index for later usage
-	int ClientIndex;
+	s3MessageBuffer msgBuffer;
 	int s3MessageCount;
 };
 typedef struct s3Contact_s s3Contact;
 
 struct s3ContactList_s
 {
-	s3Contact * data;
+	s3Contact * contacts;
 	int Capacity;
 	int Size;
 	int ContactCount;

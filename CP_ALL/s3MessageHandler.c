@@ -26,20 +26,30 @@ static char* _s3_CONTACT_MSG_COLOR = CB_BLUE;
 // one s3Message buffer needs to be reserved for output console
 static s3MessageBuffer consoleBuffer = { 0 };
 
+
+s3MessageBuffer s3NewMessageBuffer()
+{
+	s3MessageBuffer msg;
+	msg.Size = 2;
+	msg.messages = (s3Message*)malloc(msg.Size * sizeof(s3Message));
+	msg.index = 0;
+	return msg;
+}
+
 void s3InitMessageBuffers(s3MessageBuffer* msgBuffers, int count)
 {
 	int i;
 	for (i = 0; i < count; i++)
 	{
 		msgBuffers[i].Size = 2;
-		msgBuffers[i].data = (s3Message*)malloc(msgBuffers[i].Size * sizeof(s3Message));
+		msgBuffers[i].messages = (s3Message*)malloc(msgBuffers[i].Size * sizeof(s3Message));
 		msgBuffers[i].index = 0;
 	}
 
 
 	// set internal console
 	consoleBuffer.Size = 2;
-	consoleBuffer.data = (s3Message*)malloc(consoleBuffer.Size * sizeof(s3Message));
+	consoleBuffer.messages = (s3Message*)malloc(consoleBuffer.Size * sizeof(s3Message));
 	consoleBuffer.index = 0;
 
 }
@@ -53,7 +63,7 @@ void s3InitMessageHandler(int width, int height)
 
 
 	consoleBuffer.Size = 2;
-	consoleBuffer.data = (s3Message*)malloc(consoleBuffer.Size * sizeof(s3Message));
+	consoleBuffer.messages = (s3Message*)malloc(consoleBuffer.Size * sizeof(s3Message));
 	consoleBuffer.index = 0;
 
 	for (i = 0; i < sizeof(PaddingBuffer); i++)
@@ -71,8 +81,8 @@ void s3AddMessage(s3MessageBuffer* MsgBuffer, const char* msgStr, s3Flag Prop)
 	if (MsgBuffer->index >= MsgBuffer->Size)
 	{
 		MsgBuffer->Size += 10;
-		MsgBuffer->data = (s3Message*)realloc(MsgBuffer->data, sizeof(s3Message)*MsgBuffer->Size);
-		if (!MsgBuffer->data) { puts("memory allocation error!"); system("pause");  exit(1); }
+		MsgBuffer->messages = (s3Message*)realloc(MsgBuffer->messages, sizeof(s3Message)*MsgBuffer->Size);
+		if (!MsgBuffer->messages) { puts("memory allocation error!"); system("pause");  exit(1); }
 	}
 
 
@@ -81,13 +91,13 @@ void s3AddMessage(s3MessageBuffer* MsgBuffer, const char* msgStr, s3Flag Prop)
 
 
 	// copy string to buffer's last element
-	MsgBuffer->data[MsgBuffer->index].str = (char*)malloc(msgLen * sizeof(char));
-	strcpy(MsgBuffer->data[MsgBuffer->index].str, msgStr);
+	MsgBuffer->messages[MsgBuffer->index].str = (char*)malloc(msgLen * sizeof(char));
+	strcpy(MsgBuffer->messages[MsgBuffer->index].str, msgStr);
 
 
-	MsgBuffer->data[MsgBuffer->index].Prop = Prop;
-	MsgBuffer->data[MsgBuffer->index].Length = msgLen;
-	MsgBuffer->data[MsgBuffer->index].tm = time(NULL);
+	MsgBuffer->messages[MsgBuffer->index].Prop = Prop;
+	MsgBuffer->messages[MsgBuffer->index].Length = msgLen;
+	MsgBuffer->messages[MsgBuffer->index].tm = time(NULL);
 	MsgBuffer->index++;
 
 
@@ -183,8 +193,6 @@ int s3PrintMessage(int x, int y, int messageWidth , int horizontalSpace ,int *ve
 {
 
 
-
-
 	int space = *verticalSpace;
 	int offset = *offsetSpace;
 
@@ -201,14 +209,6 @@ int s3PrintMessage(int x, int y, int messageWidth , int horizontalSpace ,int *ve
 
 	int i;
 
-/*	gotoxy(2, 60);
-	printf("before");
-	gotoxy(3, 60);
-	printf("offset %d", offset);
-	gotoxy(4, 60);
-	printf("space %d", space);
-	gotoxy(5, 60);
-	printf("x_end %d", offset);*/
 
 
 	// if there is an offset
@@ -402,7 +402,7 @@ void s3DrawMessageBox(int x, int y,  int width, int height, int messageWidth,int
 
 	while ((i >= 0) && (screenSpace > 0))
 	{
-		s3PrintMessage(x, y, messageWidth, width, &screenSpace, &offset, &msgBuffer.data[i]);
+		s3PrintMessage(x, y, messageWidth, width, &screenSpace, &offset, &msgBuffer.messages[i]);
 		i--;
 
 		
@@ -418,7 +418,7 @@ void s3DrawConsoleBox(int x, int y, int width, int height, int messageWidth)
 
 	while ((i >= 0) && (height > 0))
 	{
-		height = s3PrintConsoleMessage(x,y ,messageWidth ,  width, height,  &consoleBuffer.data[i]);
+		height = s3PrintConsoleMessage(x,y ,messageWidth ,  width, height,  &consoleBuffer.messages[i]);
 		i--;
 	}
 }

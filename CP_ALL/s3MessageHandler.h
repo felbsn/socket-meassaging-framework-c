@@ -55,11 +55,14 @@ typedef struct s3Message_s  s3Message;
 
 struct s3MessageBuffer_s
 {
-	s3Message *data;
+	s3Message *messages;
 	int index;
 	int Size;
 };
 typedef struct s3MessageBuffer_s  s3MessageBuffer;
+
+
+s3MessageBuffer s3NewMessageBuffer();
 
 void s3DrawFrame(const char* color, int posX, int posY, int width, int height);
 
@@ -73,7 +76,7 @@ void s3ConsoleLog(const char * lines, s3Flag Prop);
 
 void s3DrawBox(const char* color, int posX, int posY, int width, int height);
 
-int s3PrintMessage(int x, int y, int messageWidth, int horizontalSpace, int *verticalSpace, int *offsetSpace,  s3Message* msg);
+int s3PrintMessage(int x, int y, int messageWidth, int horizontalSpace, int *verticalSpace, int *offsetSpace, s3Message* msg);
 
 int s3PrintConsoleMessage(int x, int y, int messageWidth, int horizontalSpace, int verticalSpace, s3Message* msg);
 

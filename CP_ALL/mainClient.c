@@ -22,121 +22,19 @@
 int main(int argc , char* argv[])
 {
 	system("cls");
-
-
-
-	//s3DrawFrame(C_CYAN, 1, 1, 13, 13);
-
-	//s3DrawBox(CB_BLUE, 2, 2, 10, 10);
-
-	//_getch();
-
-	/*
-
-	system("mode 100,60");
-	s3InitMessageHandler(1024, 768);
-	system("color 70");
-
-	s3MessageBuffer mybuff;
-	s3InitMessageBuffers(&mybuff, 1);
-
-
-	s3AddMessage(&mybuff, "heyy o are you rady you mother what if there was any of them there are if", s3_FROM_CONTACT);
-	s3AddMessage(&mybuff, "heyy o are you rady you mother what if there was any of them there are if", s3_FROM_OWN);
-	s3AddMessage(&mybuff, "11111111111111111111111111111111111111111111111", s3_FROM_OWN);
-	s3AddMessage(&mybuff, "2222222222222222222222222222222222222222222222222222222222222", s3_FROM_CONTACT);
-	s3AddMessage(&mybuff, "heyy o are you rady you mother what if there was any of them there are if", s3_FROM_OWN);
-
 	
-	int space = 18;
+	s3InitMessageHandler(1024, 768);
 
-	static char rebuff[4096];
-	for (size_t i = 0; i < sizeof(rebuff)-1; i++)
-	{
-		rebuff[i] = ' ';
-	}
-	rebuff[4095] = 0;
 
+	s3MessageBuffer mx = s3NewMessageBuffer();
+	s3AddMessage(&mx, "heyy o", s3_FROM_OWN);
+
+	int space = 20;
+	int offser = 0;
+	s3PrintMessage(2, 2, 20, 30, &space, &offser, &mx.messages[0]);
 
 	_getch();
-	int cahnger = 0;
-	float offset = 0;
 
-	DWORD delay = 0;
-	DWORD timerOld  = GetTickCount();
-	DWORD timerNew;
-	do
-	{
-		timerNew = GetTickCount();
-		delay = timerNew - timerOld;
-		timerOld = timerNew;
-
-		if (delay < 30) delay = 30 ;
-
-		if (GetAsyncKeyState(VK_UP))
-		{
-			offset += delay * 0.005f;
-
-			cahnger = 1;
-		}
-
-		if (GetAsyncKeyState(VK_RIGHT))
-		{
-
-			cahnger = 1;
-		}
-		
-		if (GetAsyncKeyState(VK_DOWN))
-		{
-			offset -= delay * 0.005f;
-			offset < 0 ? offset = 0 : 0;
-			cahnger = 1;
-		}
-
-		if (cahnger)
-		{
-			gotoxy(0, 0);
-			printf(rebuff);
-
-		
-		s3DrawMessageBox(2, 2, 40, 20, 18, offset, mybuff);
-		setColor(CB_CYAN);
-		s3DrawFrame(C_CYAN, 1, 1, 42, 22);
-
-		gotoxy(21, 2);
-		printf("%f", offset);
-
-
-		cahnger = 0;
-
-		}
-
-
-	} while (1);
-
-	*/
-	//system("mode 60,40");
-	//system("cls");
-	//system("color 70");
-	//char* merabadunya = "ahg\0dfsdfsdf";
-	////merabadunya[3] = 0;
-	//printf("%.*s\n", 20, merabadunya);
-	//
-	//SetupConsolehandler(1024, 768);
-	//
-	//s3MessageBuffer mbuf;
-	//Inits3MessageBuffers(&mbuf, 1);
-	//
-	//Adds3Message(&mbuf, "merhaba kardesim ben agzerbeycandan gelmisem sana bakirem ", 0);
-	//Adds3Message(&mbuf, "ooo hosgelmissen aybalam ben de seni ozlirem aa", 1);
-	//Adds3Message(&mbuf, "ooo hosgelmissen aybalam ben de seni ozlirem aa", 1);
-	//Adds3Message(&mbuf, "ooo hosgelmissen aybalam ben de seni ozlirem aa", 1);
-	//
-	//Draws3MessageBox(2, 2, 30, 10, 50, mbuf);
-	//
-	//
-	//_getch();
-	//system("pause");
 
 	if (argc == 1)
 	{
@@ -279,7 +177,7 @@ int main(int argc , char* argv[])
 			if (ContactIndex >= 0)
 			{
 				s3AddMessage(&msgBuffers[ContactIndex], s3GetLastRecvs3Message(), 0);
-				contactList.data[ContactIndex].s3MessageCount++;
+				contactList.contacts[ContactIndex].s3MessageCount++;
 			}
 			else
 			{
