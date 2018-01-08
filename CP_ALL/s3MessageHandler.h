@@ -63,6 +63,8 @@ typedef struct s3MessageBuffer_s  s3MessageBuffer;
 
 void s3DeleteBuffer(s3MessageBuffer* msgBuffer);
 
+void s3ClearBuffer(s3MessageBuffer* msgBuffer);
+
 s3MessageBuffer s3NewMessageBuffer();
 
 void s3DrawFrame(const char* color, int posX, int posY, int width, int height);

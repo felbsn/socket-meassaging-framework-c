@@ -51,7 +51,7 @@ int main(int argc , char* argv[])
 	Token UserID = -1;
 
 	// create s3Message buffers for each channel / person
-	s3MessageBuffer msgBuffers[256];
+
 
 
 	const int ScreenWidth = 100;
@@ -64,10 +64,8 @@ int main(int argc , char* argv[])
 	system("cls");
 	system("color 70");
 
-	// bind 
-	s3InitMessageHandler(ScreenWidth , ScreenHeight);
 
-	//s3InitMessageBuffers(msgBuffers, 256);
+	s3InitMessageHandler(ScreenWidth , ScreenHeight);
 
 
 	s3DrawBox(CB_CYAN, ScreenHeight / 2 - 3, ScreenWidth / 2 - 18, 36, 6);
@@ -107,7 +105,7 @@ int main(int argc , char* argv[])
 		setColor(CB_WHITE);
 		setColor(C_GRAY);
 
-		s_server = NULL;
+		s_server = 0;
 	}
 	else
 	{
@@ -131,7 +129,7 @@ int main(int argc , char* argv[])
 	static s3Flag AltStatus = s3_FALSE;
 
 	int channel = 0;
-	int UserChannel = 0;
+	float offset = 0;
 
 	s3Flag screenChange = s3_TRUE;
 
@@ -158,6 +156,7 @@ int main(int argc , char* argv[])
 			case s3_INCOMING_MSG:
 				screenChange = s3_TRUE;
 				s3ConsoleLog("incoming message", s3_DEFAULT);
+				offset = 0;
 				break;
 			case s3_SERVER_ERROR:
 				s3DrawBox(CB_MAGENTA, ScreenHeight / 2 - 3, ScreenWidth / 2 - 18, 36, 6);
@@ -190,22 +189,19 @@ int main(int argc , char* argv[])
 			screenChange = s3_TRUE;
 		}
 
-		
-
-		s3KeyGetAltStatus();
 
 		if (AltStatus)
 		{
 			if (s3GetKeyState('+', s3Key_Pressed))
 			{
-
+				offset = 0;
 				channel++;
 				if (channel >= contactList.Size) channel--;
 				screenChange = s3_TRUE;
 			}
 			if (s3GetKeyState('-', s3Key_Pressed))
 			{
-
+				offset = 0;
 				channel--;
 				if (channel < 0) channel = 0;
 				screenChange = s3_TRUE;
@@ -252,7 +248,6 @@ int main(int argc , char* argv[])
 						{
 
 							s3ConsoleLog("user added succesffully",s3_SUCCESS);
-							UserChannel++;
 						}
 						else
 						{
@@ -305,18 +300,17 @@ int main(int argc , char* argv[])
 
 
 
-			if (s3GetKeyState('d', s3Key_Pressed), s3GetKeyState('D', s3Key_Pressed))
+			if (s3GetKeyState('d', s3Key_Pressed) || s3GetKeyState('D', s3Key_Pressed))
 			{
 				if (channel < contactList.Size)
 				{
 
 					if (channel < contactList.Size -1)
 					{
-						s3MessageBuffer tmpBuf = msgBuffers[channel];
-
-						free()
+						s3ClearContact(&contactList.contacts[channel]);
 						contactList.contacts[channel] = contactList.contacts[contactList.Size - 1];
-
+						contactList.Size--;
+						s3ResetBufferChannel(channel);
 
 					}
 					else
@@ -324,7 +318,8 @@ int main(int argc , char* argv[])
 
 						
 						int delIndex =  contactList.Size--;
-						free(contactList.contacts[delIndex].msgBuffer.messages->str);
+						s3ClearContact(&contactList.contacts[delIndex]);
+						s3ResetBufferChannel(channel);
 					}
 					screenChange = s3_TRUE;
 
@@ -345,8 +340,20 @@ int main(int argc , char* argv[])
 		}
 		else
 			if (s3SeekKeyDown())
-			{
-
+			{	
+					if (GetAsyncKeyState(VK_UP))
+					{
+						offset += 0.03f * max(GetTickCount() - ElapsedTime, 33);
+						screenChange = s3_TRUE;
+							
+					}else
+					if (GetAsyncKeyState(VK_DOWN))
+					{
+						offset -= 0.03f * max(GetTickCount() - ElapsedTime, 33);
+						if (offset < 0) offset = 0;
+						screenChange = s3_TRUE;
+					}
+					else
 					if (s3GetKeyState(VK_RETURN, s3Key_Pressed))
 					{
 						if (contactList.Size > channel && (s3GetBufferChannelLen(channel) > 0))
@@ -392,16 +399,46 @@ int main(int argc , char* argv[])
 						{
 							s3ConsoleLog("Invalid entry", s3_FAIL);
 						}
+
+						screenChange = s3_TRUE;
 					}
 					else
 					{
 					gotoxy(30, 0);
 					s3HandleText(channel);
+					// input box draw
+					s3DrawBox(CB_YELLOW, ScreenHeight - 6, 23, 56, 6);
+					setColor(CB_YELLOW);
+					char* channelData = s3GetBufferChannel(channel);
+					int len = s3GetBufferChannelLen(channel);
+					int lenPrint = 0;
+					int xPos = ScreenHeight - 5;
+					int yPos = 24;
+					int LinePadding = 54;
+						while (len > 0)
+						{
+							if (len > LinePadding)
+							{
+								gotoxy(xPos, yPos);
+								printf("%.*s", LinePadding, channelData + lenPrint);
+								lenPrint += LinePadding;
+								len -= LinePadding;
+								xPos++;
+							}
+							else
+							{
+							gotoxy(xPos, yPos);
+							printf("%s", channelData + lenPrint);
+							len = 0;
+							}
+						}
+						setColor(CB_WHITE);
+						setColor(C_GRAY);
 					}
 
 
 
-				screenChange = s3_TRUE;
+				//screenChange = s3_TRUE;
 			}
 
 		if (screenChange)
@@ -410,27 +447,15 @@ int main(int argc , char* argv[])
 
 
 			// draw contacts
-
 			s3DrawContactList(3, 1, 20, ScreenHeight - 12, &contactList, channel);
-			/*int i;
-			for (i = 0; i < contactList.Size; i++)
-			{
-				s3DrawBox(channel == i ? CB_MAGENTA :CB_CYAN, 2, channel == i ? 1: 0 , 20 , 3);
-				setColor(channel == i ? CB_MAGENTA : CB_CYAN);
-				gotoxy(3 + i * 3, channel == i ? 1 : 0);
-				printf(contactList.contacts[i].info);
-				gotoxy(3 + i * 3 +1, channel == i ? 1 : 0);
-				printf("ph: %lld " , contactList.contacts[i].phoneNo);
-	
 
-			}*/
 
 
 			// draw s3Message boxes
 			setColor(CB_WHITE);
 			s3DrawFrame(C_CYAN, 2, 24, 75, ScreenHeight - 8);
 			if(contactList.Size > 0)
-			s3DrawMessageBox(3, 25,  74, ScreenHeight - 10, 30, 0, contactList.contacts[channel].msgBuffer);
+			s3DrawMessageBox(3, 25,  74, ScreenHeight - 10, 30, offset, contactList.contacts[channel].msgBuffer);
 
 
 			// current state box
@@ -497,13 +522,12 @@ int main(int argc , char* argv[])
 
 		gotoxy(ScreenHeight - 2, 3);
 		int printlen = printf("time:%d", (ElapsedTime - TimeRef) / 1000);
-		int i;
+
 
 
 	}
 
 
-	system("pause");
 	return 0;
 }
 

@@ -18,6 +18,25 @@ static Token _lastReceivedPhoneNo;
 static DWORD _ConnectionTimeout = 0;
 
 
+void s3DeleteContact(s3Contact* contact)
+{
+	if (contact)
+	{
+		s3ClearBuffer(&contact->msgBuffer);
+		free(contact);
+	}
+}
+
+void s3ClearContact(s3Contact* contact)
+{
+	if (contact)
+	{
+		s3ClearBuffer(&contact->msgBuffer);
+		
+	}
+}
+
+
 Token s3GetLastRecvPhone()
 {
 	return _lastReceivedPhoneNo;

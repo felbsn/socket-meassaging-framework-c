@@ -32,3 +32,7 @@ char* s3GetLastRecvs3Message();
 s3Flag s3Reconnect(Token* userID , SOCKET* serverSocket);
 
 s3Flag s3RunClient(s3ContactList *contactList, unsigned int TimeoutMicroSecs);
+
+void s3DeleteContact(s3Contact* contact);
+
+void s3ClearContact(s3Contact* contact);

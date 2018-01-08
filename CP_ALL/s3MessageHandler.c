@@ -29,13 +29,37 @@ static s3MessageBuffer consoleBuffer = { 0 };
 
 void s3DeleteBuffer(s3MessageBuffer* msgBuffer)
 {
-	int i;
-	for (i = 0; i < msgBuffer->index ; i++)
+	if (msgBuffer)
 	{
-		free(msgBuffer->messages[i].str);
-		free(msgBuffer->messages);
-	}
 
+	
+		int i;
+		for (i = 0; i < msgBuffer->index; i++)
+		{
+			free(msgBuffer->messages[i].str);
+			free(msgBuffer->messages);
+
+			msgBuffer->Size = 0;
+			msgBuffer->index = 0;
+		}
+		free(msgBuffer);
+	}
+}
+void s3ClearBuffer(s3MessageBuffer* msgBuffer)
+{
+	if (msgBuffer)
+	{
+
+		int i;
+		for (i = 0; i < msgBuffer->index; i++)
+		{
+			free(msgBuffer->messages[i].str);
+			free(msgBuffer->messages);
+
+			msgBuffer->Size = 0;
+			msgBuffer->index = 0;
+		}
+	}
 }
 
 s3MessageBuffer s3NewMessageBuffer()
@@ -214,7 +238,7 @@ int s3PrintMessage(int x, int y, int messageWidth , int horizontalSpace ,int *ve
 
 	int x_end = x + space;
 	int len = msg->Length;
-	int lineCount = ceil((float)len / messageWidth);
+	int lineCount =(int) ceil((float)len / messageWidth);
 	int users3MessageOffset = y + horizontalSpace - messageWidth-2;
 	int boxHeight;
 
@@ -344,7 +368,7 @@ int s3PrintConsoleMessage(int x, int y, int messageWidth, int horizontalSpace, i
 {
 	int x_end = x + verticalSpace;
 	int len = msg->Length;
-	int lineCount = ceil((float)len / messageWidth);
+	int lineCount =(int) ceil((float)len / messageWidth);
 	int users3MessageOffset = y + horizontalSpace - messageWidth ;
 
 
