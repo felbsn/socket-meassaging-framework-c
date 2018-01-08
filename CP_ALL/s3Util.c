@@ -249,26 +249,35 @@ int addClient(s3ClientList* clist, SOCKET s, Token phoneNum , s3Flag* flag)
 	}
 }
 
-int s3SendMsg(SOCKET s, int flag)
-{
-	return send(s, (char*)&flag, sizeof(s3Flag), 0);
-}
 
-s3Flag s3RecvMsgPeek(SOCKET s , s3Flag* flagBuffer)
+int s3SendTime(SOCKET s, time_t t)
 {
-	int rec = recv(s, (char*)flagBuffer, sizeof(s3Flag), MSG_PEEK);
+	return send(s, (char*)&t, sizeof(time_t), 0);
+}
+s3Flag s3RecvTime(SOCKET s, time_t* t)
+{
+
+	int rec = recv(s, (char*)t, sizeof(time_t), 0);
 
 	if (rec > 0)
-		if (rec == sizeof(s3Flag))
+	{
+		if (rec == sizeof(Token))
 		{
 			return s3_SUCCESS;
 		}
 		else
 		{
-			return s3_FAIL;
+			return s3_FALSE;
 		}
+	}
 	else
-		return s3_FAIL;
+		return s3_FALSE;
+}
+
+
+int s3SendMsg(SOCKET s, int flag)
+{
+	return send(s, (char*)&flag, sizeof(s3Flag), 0);
 }
 
 s3Flag s3RecvMsg(SOCKET s, s3Flag* flagBuffer)
@@ -287,6 +296,7 @@ s3Flag s3RecvMsg(SOCKET s, s3Flag* flagBuffer)
 	else
 		return s3_FAIL;
 }
+
 
 s3Flag s3RecvToken(SOCKET s, Token* data)
 {
@@ -314,11 +324,12 @@ int s3SendToken(SOCKET s, Token data)
 }
 
 
-s3Flag s3AddQueneItem(s3ClientList * clist, Token targetID, Token senderPhone, char* s3Message, int s3MessageLen)
+s3Flag s3AddQueneItem(s3ClientList * clist, Token targetID, Token senderPhone,time_t t , char* s3Message, int s3MessageLen)
 {
 
 	FILE *fa = fopen(tokenToCharDB(targetID), "ab");
 	fwrite(&senderPhone, sizeof(Token), 1, fa);
+	fwrite(&t, sizeof(time_t), 1, fa);
 	fwrite(&s3MessageLen, sizeof(int), 1, fa);
 	fwrite(s3Message, s3MessageLen, 1, fa);
 
@@ -329,26 +340,8 @@ s3Flag s3AddQueneItem(s3ClientList * clist, Token targetID, Token senderPhone, c
 	return s3_SUCCESS;
 }
 
-/*s3Flag s3RemoveQueneItem(s3s3MessageQuene* msgQuene, int index)
-{
-	if (index < (msgQuene->Size - 1))
-	{
-		int i;
 
-		for (i = index; i < msgQuene->Size - 1; i++)
-		{
-			msgQuene->msgData[index] = msgQuene->msgData[index + 1];
-		}
-
-	}
-
-	msgQuene->Size--;
-
-	return s3_SUCCESS;
-}*/
-
-
-s3Flag s3Handles3Messages(s3ClientList * clist,  s3ClientProperty* CP)
+s3Flag s3ProcessMessages( s3ClientProperty* CP)
 {
 	static char buffer[2048];
 	if (!CP->msgCounter)
@@ -367,8 +360,13 @@ s3Flag s3Handles3Messages(s3ClientList * clist,  s3ClientProperty* CP)
 		{
 				Token senderPhone;
 				fread(&senderPhone, sizeof(Token), 1, fi);
+
+				time_t t;
+				fread(&t, sizeof(time_t), 1, fi);
+
 				int bufferSize;
 				fread(&bufferSize, sizeof(int), 1, fi);
+
 				fread(buffer, bufferSize, 1, fi);
 
 				s3Flag  msg;
@@ -380,11 +378,19 @@ s3Flag s3Handles3Messages(s3ClientList * clist,  s3ClientProperty* CP)
 
 				s3RecvMsg(CP->socket, &msg);// achk
 
+				s3SendTime(CP->socket, t);
+
+				s3RecvMsg(CP->socket, &msg);// achk
+
 				s3SendBuffer(CP->socket, buffer, bufferSize);
 
 				s3RecvMsg(CP->socket, &msg);// achk
 
+				if(i+1 < CP->msgCounter)
 				s3SendMsg(CP->socket, s3_CONTINUE);
+				else
+				s3SendMsg(CP->socket, s3_DONE);
+
 
 
 		}
@@ -392,6 +398,7 @@ s3Flag s3Handles3Messages(s3ClientList * clist,  s3ClientProperty* CP)
 		CP->msgCounter = 0;
 
 	fclose(fi);
+	// reset file
 	fi = fopen(fileName, "w");
 	fclose(fi);
 
@@ -399,7 +406,7 @@ s3Flag s3Handles3Messages(s3ClientList * clist,  s3ClientProperty* CP)
 }
 
 
-int s3HandleConnection(s3ClientList * clist,Token index, s3Flag flag)
+int s3ProcessConnection(s3ClientList * clist,Token index, s3Flag flag)
 {
 	static s3Flag result;
 	static s3Flag msg;
@@ -442,7 +449,7 @@ int s3HandleConnection(s3ClientList * clist,Token index, s3Flag flag)
 			if (result == s3_OK)
 				result = (s3Flag)s3SendToken(CP.socket, clist->data[id].userID);
 			if (!result) {
-				puts(" #ERROR sendin final token");
+				puts(" #ERROR sending final token");
 				eraseClientByIndices(clist, index);
 			}
 		}
@@ -539,7 +546,7 @@ int s3HandleConnection(s3ClientList * clist,Token index, s3Flag flag)
 				{
 
 
-					if (clist->data[id].socket != NULL)
+					/*if (clist->data[id].socket != NULL)
 					{
 						// Test target connection tester
 						result = (s3Flag)s3SendMsg(clist->data[id].socket, s3_INCOMING_MSG);
@@ -661,181 +668,24 @@ int s3HandleConnection(s3ClientList * clist,Token index, s3Flag flag)
 					}
 					else
 					{
+					}*/
+
+
 						puts("writing to database");
 						s3SendMsg(CP.socket, s3_FOUND);
 
 						s3RecvBuffer(CP.socket);
-						s3AddQueneItem(clist, id, CP.phoneNo, s3GetRxBuffer(), s3GetRxBufferLen());
+						
+						s3AddQueneItem(clist, id, CP.phoneNo, time(NULL), s3GetRxBuffer(),  s3GetRxBufferLen());
 
 						s3SendMsg(CP.socket, s3_SUCCESS);
-					}
+					
 				}
 				else
 				{
 					s3SendMsg(CP.socket, s3_USER_ID_INVALID);
 				}
 
-			// old solution
-			/*Token id;
-			s3RecvToken(CP.socket, &id);
-
-			printf("Peer try to connect user: >>>>>>>>>>>  %llu  \n", id);
-			if (id == CP.userID)
-			{
-				s3SendMsg(CP.socket, s3_USER_ID_INVALID);
-			}
-			else
-				if ((id >= 0) && (id < clist->Size))
-				{
-
-
-					if (clist->data[id].socket != NULL)
-					{
-						// if user found
-
-
-						//
-						// Test target connection tester
-						result = (s3Flag)s3SendMsg(clist->data[id].socket, s3_INCOMING_MSG);
-						if (!result) {
-							puts(">>> #TARGET_ERROR sending s3_INCOMING_MSG");
-							eraseClientByIndices(clist, id);
-							//
-							result = (s3Flag)s3SendMsg(CP.socket, s3_FAIL);
-							if (!result) {
-								puts(" #ERROR on sender");
-								eraseClientByIndices(clist, index);
-							}
-							//
-							return s3_FALSE;
-						}
-
-						result = s3RecvMsg(clist->data[id].socket, &msg);
-						if (!result) {
-							puts(" >>> #TARGET_ERROR receiving s3_INCOMING_MSG achnowledge");
-							eraseClientByIndices(clist, id);
-							//
-							result = (s3Flag)s3SendMsg(CP.socket, s3_FAIL);
-							if (!result) {
-								puts(" #ERROR on sender");
-								eraseClientByIndices(clist, index);
-							}
-							//
-							return s3_FALSE;
-						}
-
-						if (msg != s3_ACCEPT)
-						{
-							printf("Target not accept s3Message msg -> %d \n", msg);
-							result = (s3Flag)s3SendMsg(CP.socket, s3_FAIL);
-							if (!result) {
-								puts(" #ERROR sending Final Word");
-								eraseClientByIndices(clist, index);
-							}
-							result = (s3Flag)s3SendMsg(clist->data[id].socket, s3_FAIL);
-							return s3_FAIL;
-						}
-
-						result = (s3Flag)s3SendToken(clist->data[id].socket, CP.phoneNo);
-						if (!result) {
-							puts(" error sender phone number to Target phoneNumber");
-							eraseClientByIndices(clist, id);
-
-							result = (s3Flag)s3SendMsg(CP.socket, s3_FAIL);
-							return s3_FAIL;
-						}
-
-						result = s3RecvMsg(clist->data[id].socket, &msg);
-						if (!result) {
-							puts(" #ERROR receiving phoneNumber achnowledge");
-							eraseClientByIndices(clist, id);
-
-							result = (s3Flag)s3SendMsg(CP.socket, s3_FAIL);
-							return s3_FAIL;
-						}
-
-						if (msg != s3_OK)
-						{
-							printf("Target not send OK msg -> %d \n", msg);
-							result = (s3Flag)s3SendMsg(CP.socket, s3_FAIL);
-							if (!result) {
-								puts(" #ERROR sending Final Word");
-								eraseClientByIndices(clist, index);
-							}
-
-							return s3_FAIL;
-						}
-						// afeter finishing target stuff
-
-
-						// send achnowledge to sender
-						result = (s3Flag)s3SendMsg(CP.socket, s3_FOUND);
-						if (!result) {
-							puts(" #ERROR send s3_FOUND");
-							eraseClientByIndices(clist, index);
-
-							// send fail infomation s3Message to receiver client
-							result = (s3Flag)s3SendMsg(clist->data[id].socket, s3_FAIL);
-
-							return s3_FAIL;
-						}
-
-						//receive data from requester
-						result = (s3Flag)s3RecvBuffer(CP.socket);
-						if (!result) {
-							puts(" #ERROR receiving FOUND achnowledge");
-							eraseClientByIndices(clist, index);
-
-							result = (s3Flag)s3SendMsg(clist->data[id].socket, s3_FAIL);
-
-							return s3_FAIL;
-						}
-
-						if (s3SendBufferTx(clist->data[id].socket))
-						{
-							puts(" Buffer succesfully send to TARGET *");
-							//send second status to peer
-							result = (s3Flag)s3SendMsg(CP.socket, s3_SUCCESS);
-							if (!result) {
-								puts(" #ERROR sending Final Word");
-								eraseClientByIndices(clist, index);
-							}
-
-						}
-						else
-						{
-							puts(" #ERROR sending buffer to target");
-							//send second status to peer
-							result = (s3Flag)s3SendMsg(CP.socket, s3_FAIL);
-							if (!result) {
-								puts(" #ERROR sending Final Word");
-								eraseClientByIndices(clist, index);
-							}
-						}
-
-
-					}
-					else
-					{
-
-						// send achknowledge to peer
-						result = (s3Flag)s3SendMsg(CP.socket, s3_USER_OFFLINE);
-						if (!result) {
-							puts(" #ERROR receiving FOUND msg");
-							eraseClientByIndices(clist, index);
-						}
-					}
-				}
-				else
-				{
-					// send achknowledge to peer
-					result = (s3Flag)s3SendMsg(CP.socket, s3_USER_ID_INVALID);
-					if (!result) {
-						puts(" #ERROR receiving FOUND msg << s3_USER_ID_INVALID");
-						eraseClientByIndices(clist, index);
-					}
-				}
-*/
 		}break;
 
 	case s3_EXIT_FROM_SERVER:

@@ -38,17 +38,18 @@ int findIndexByPhoneNum(s3ClientList* clist, Token phoneNum);
 
 int addClient(s3ClientList* clist, SOCKET s, Token phoneNum , s3Flag* flag);
 
+
+int s3SendTime(SOCKET s, time_t t);
+s3Flag s3RecvTime(SOCKET s, time_t* t);
+
 int s3SendMsg(SOCKET s, int flag);
 
-s3Flag s3RecvMsgPeek(SOCKET s, s3Flag* flagBuffer);
-
 s3Flag s3RecvMsg(SOCKET s, s3Flag* flagBuffer);
+
 
 s3Flag s3RecvToken(SOCKET s, Token* data);
 
 int s3SendToken(SOCKET s, Token data);
-
-int s3HandleConnection(s3ClientList * clist,Token index, s3Flag flag);
 
 s3Flag s3StoreServerData(s3ClientList * clist, char* storageFileName);
 
@@ -61,7 +62,9 @@ char* tokenToCharDB(Token userID );
 
 void SetDbPath(const char *DBpath_in);
 
-s3Flag s3AddQueneItem(s3ClientList * clist, Token targetID, Token senderPhone, char* s3Message, int s3MessageLen );
+s3Flag s3AddQueneItem(s3ClientList * clist, Token targetID, Token senderPhone, time_t t, char* s3Message, int s3MessageLen);
 
 
-s3Flag s3Handles3Messages(s3ClientList * clist, s3ClientProperty* CP);
+int s3ProcessConnection(s3ClientList * clist, Token index, s3Flag flag);
+
+s3Flag s3ProcessMessages(s3ClientProperty* CP);

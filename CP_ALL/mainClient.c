@@ -21,20 +21,7 @@
 
 int main(int argc , char* argv[])
 {
-	system("cls");
 
-
-	s3InitMessageHandler(1024, 768);
-
-
-	s3MessageBuffer mx = s3NewMessageBuffer();
-	s3AddMessage(&mx, "heyy o", s3_FROM_OWN);
-
-	int space = 20;
-	int offser = 0;
-	s3PrintMessage(2, 2, 20, 30, &space, &offser, &mx.messages[0]);
-
-	_getch();
 
 
 	if (argc == 1)
@@ -60,13 +47,16 @@ int main(int argc , char* argv[])
 	system("cls");
 
 
+	Token UserPhoneNumber =-1;
+	Token UserID = -1;
+
+	// create s3Message buffers for each channel / person
+	s3MessageBuffer msgBuffers[256];
+
+
 	const int ScreenWidth = 100;
 	const int ScreenHeight = 44;
 	char command[30];
-
-	Token UserPhoneNumber;
-	Token UserID;
-
 
 	// setup inital screen 
 	sprintf(command, "mode %d,%d", ScreenWidth, ScreenHeight);
@@ -74,17 +64,13 @@ int main(int argc , char* argv[])
 	system("cls");
 	system("color 70");
 
-	// create s3Message buffers for each channel / person
-	s3MessageBuffer msgBuffers[256];
-
-
 	// bind 
 	s3InitMessageHandler(ScreenWidth , ScreenHeight);
 
-	s3InitMessageBuffers(msgBuffers, 256);
+	//s3InitMessageBuffers(msgBuffers, 256);
 
 
-	s3DrawBox(CB_CYAN, ScreenHeight / 2 - 3, ScreenWidth / 2 - 18, 6, 36);
+	s3DrawBox(CB_CYAN, ScreenHeight / 2 - 3, ScreenWidth / 2 - 18, 36, 6);
 	setColor(CB_CYAN);
 	gotoxy(ScreenHeight / 2-2 , ScreenWidth / 2 - 17);
 	printf("Enter Client phone number");
@@ -94,7 +80,7 @@ int main(int argc , char* argv[])
 	if (!UserPhoneNumber)
 	{
 		puts("invalid phone number");
-		system("pause");
+		_getch();
 		exit(1);
 	}
 	setColor(CB_WHITE);
@@ -103,7 +89,7 @@ int main(int argc , char* argv[])
 
 
 
-	static s3ContactList contactList = { 0 };
+	s3ContactList contactList = { 0 };
 
 	s3InitContactList(&contactList);
 	SOCKET s_server;
@@ -161,82 +147,38 @@ int main(int argc , char* argv[])
 		ElapsedTime = GetTickCount();
 		if (ElapsedTime - LastTime > 1000)
 		{
+			s3Flag result = s3RunClient( &contactList,20);
 
-		// wait 20 microsec for any incoming event
-		//s3Flag result = s3RunClient( ,20);
 
-		/*switch (result)
-		{
-		case s3_ERROR:
-			break;
-		case s3_FAIL:
-			break;
-		case s3_INCOMING_MSG:
-		{
-			Token lphone = s3GetLastRecvPhone();
-			int ContactIndex = s3FindContactIndexByPhone(&contactList, lphone);
-			if (ContactIndex >= 0)
+			switch (result)
 			{
-				s3AddMessage(&msgBuffers[ContactIndex], s3GetLastRecvs3Message(), 0);
-				contactList.contacts[ContactIndex].messageCount++;
-			}
-			else
-			{
-				char buffer[30];
-				sprintf(buffer, "%llu", lphone);
-				int index = s3AddContact(s_server, &contactList, buffer, lphone);
-
-				contactList.data[index].messageCount++;
-				UserChannel++;
-				// whic last added contact
-				s3AddMessage(&msgBuffers[index], s3GetLastRecvs3Message(), 0);
+			case s3_FAIL:
+				s3ConsoleLog("server error", s3_ERROR);
+				break;
+			case s3_INCOMING_MSG:
+				screenChange = s3_TRUE;
+				s3ConsoleLog("incoming message", s3_DEFAULT);
+				break;
+			case s3_SERVER_ERROR:
+				s3DrawBox(CB_MAGENTA, ScreenHeight / 2 - 3, ScreenWidth / 2 - 18, 36, 6);
+				setColor(CB_MAGENTA);
+				gotoxy(ScreenHeight / 2 - 2, ScreenWidth / 2 - 17);
+				printf("Server Error");
+				gotoxy(ScreenHeight / 2 - 1, ScreenWidth / 2 - 17);
+				printf("press any key to continue");
+				_getch();
+				setColor(CB_WHITE);
+				setColor(C_GRAY);
+				s3ConsoleLog("connection lost", s3_ERROR);
+				screenChange = s3_TRUE;
+				break;
+			default:
+				break;
 			}
 
-			s3ConsoleLog( "incoming s3Message" , s3_DEFAULT);
-			screenChange = s3_TRUE;
 
-		}
-		break;
-		case s3_SERVER_ERROR:
-		{	s3ConsoleLog("SERVER_ERROR" ,s3_ERROR);
-			s3KeyGetAltToggleReset();
+			LastTime = ElapsedTime;
 
-			s3DrawBox(CB_RED, ScreenHeight / 2 - 3, ScreenWidth / 2 - 18, 6, 36);
-			setColor(CB_RED);
-			gotoxy(ScreenHeight / 2 - 2, ScreenWidth / 2 - 17);
-			printf("SERVER_ERROR");
-			gotoxy(ScreenHeight / 2 - 1, ScreenWidth / 2 - 17);
-			printf("you can try to reconnect");
-			setColor(CB_WHITE );
-
-		}break;
-		case s3_OVERRIDE_ERROR:
-			{
-			s3DrawBox(CB_RED, ScreenHeight / 2 - 3, ScreenWidth / 2 - 18, 6, 36);
-			setColor(CB_RED);
-			gotoxy(ScreenHeight / 2 - 2, ScreenWidth / 2 - 17);
-			printf("OVERRIDE_ERROR");
-			gotoxy(ScreenHeight / 2 - 1, ScreenWidth / 2 - 17);
-			printf("press any key to contiune");
-			setColor(CB_WHITE);
-			}break;
-		case s3_USER_OFFLINE:
-			s3ConsoleLog("user offline" , s3_DEFAULT);
-			break;
-		case s3_USER_NOT_FOUND:
-			s3ConsoleLog("user not found" ,s3_ERROR);
-			break;
-		case s3_USER_ID_INVALID:
-			s3ConsoleLog("user id invalid" ,s3_ERROR);
-			break;
-		case s3_TIMEOUT:
-			s3ConsoleLog("timeout on receive",s3_ERROR);
-			break;
-		default:
-			break;
-		}*/
-
-		LastTime = ElapsedTime;
 
 		}
 
@@ -258,7 +200,7 @@ int main(int argc , char* argv[])
 			{
 
 				channel++;
-				if (channel >= UserChannel) channel = max((UserChannel-1) , 0 );
+				if (channel >= contactList.Size) channel--;
 				screenChange = s3_TRUE;
 			}
 			if (s3GetKeyState('-', s3Key_Pressed))
@@ -278,7 +220,7 @@ int main(int argc , char* argv[])
 			if (s3GetKeyState('a', s3Key_Pressed) || s3GetKeyState('A', s3Key_Pressed))
 			{
 				s3KeyGetAltToggleReset();
-				s3DrawBox(CB_YELLOW, ScreenHeight / 2 - 3, ScreenWidth / 2 - 18, 6, 36);
+				s3DrawBox(CB_YELLOW, ScreenHeight / 2 - 3, ScreenWidth / 2 - 18, 36, 6);
 				setColor(CB_YELLOW);
 				gotoxy(ScreenHeight / 2 - 2, ScreenWidth / 2 - 17);
 				printf("Enter phone number");
@@ -295,7 +237,7 @@ int main(int argc , char* argv[])
 					int ContactIndex = s3FindContactIndexByPhone(&contactList, phone);
 					if (ContactIndex < 0)
 					{
-						s3DrawBox(CB_YELLOW, ScreenHeight / 2 - 3, ScreenWidth / 2 - 18, 6, 36);
+						s3DrawBox(CB_YELLOW, ScreenHeight / 2 - 3, ScreenWidth / 2 - 18, 36, 6);
 
 						setColor(CB_YELLOW);
 						gotoxy(ScreenHeight / 2 - 2, ScreenWidth / 2 - 17);
@@ -330,7 +272,7 @@ int main(int argc , char* argv[])
 					}
 					else
 					{
-						s3ConsoleLog("allready added" ,s3_ERROR);
+						s3ConsoleLog("already added" ,s3_ERROR);
 					}
 
 
@@ -365,40 +307,35 @@ int main(int argc , char* argv[])
 
 			if (s3GetKeyState('d', s3Key_Pressed), s3GetKeyState('D', s3Key_Pressed))
 			{
-
-				if (UserChannel >= 0)
+				if (channel < contactList.Size)
 				{
-					if (channel != UserChannel - 1)
+
+					if (channel < contactList.Size -1)
 					{
-
-						msgBuffers[channel].index = 0;
-
 						s3MessageBuffer tmpBuf = msgBuffers[channel];
 
-						msgBuffers[channel] = msgBuffers[UserChannel - 1];
+						free()
+						contactList.contacts[channel] = contactList.contacts[contactList.Size - 1];
 
-						msgBuffers[UserChannel - 1] = tmpBuf;
 
-						contactList.contacts[channel] = contactList.contacts[UserChannel - 1];
-
-						contactList.Size--;
-						UserChannel--;
 					}
 					else
 					{
 
-						msgBuffers[channel].index = 0;
-						contactList.Size--;
-						UserChannel--;
+						
+						int delIndex =  contactList.Size--;
+						free(contactList.contacts[delIndex].msgBuffer.messages->str);
 					}
 					screenChange = s3_TRUE;
+
 				}
+				
 			}
 
 			if (s3GetKeyState('r', s3Key_Pressed) || s3GetKeyState('R', s3Key_Pressed))
 			{
 				s3ConsoleLog("Trying to reconnect" , s3_DEFAULT);
-				if (s3Reconnect(&UserID) == s3_SUCCESS)
+				if (s3Reconnect(&UserID , &s_server) == s3_SUCCESS)
 					s3ConsoleLog("Done!" ,s3_DONE);
 				else
 					s3ConsoleLog("Failed!" , s3_FAIL);
@@ -412,7 +349,7 @@ int main(int argc , char* argv[])
 
 					if (s3GetKeyState(VK_RETURN, s3Key_Pressed))
 					{
-						if (UserChannel > channel && (s3GetBufferChannelLen(channel) > 0))
+						if (contactList.Size > channel && (s3GetBufferChannelLen(channel) > 0))
 						{
 							s3Flag result;
 
@@ -422,7 +359,7 @@ int main(int argc , char* argv[])
 								switch (result)
 								{
 								case s3_SUCCESS:
-									s3AddMessage(&msgBuffers[channel], s3GetBufferChannel(channel), s3_FROM_OWN);
+									s3AddMessage(&contactList.contacts[channel].msgBuffer, s3GetBufferChannel(channel), time(NULL) ,s3_FROM_OWN);
 									s3ResetBufferChannel(channel);
 									s3ConsoleLog("succesfully send", s3_SUCCESS);
 									break;
@@ -440,11 +377,9 @@ int main(int argc , char* argv[])
 									break;
 								case s3_TIMEOUT:
 									s3ConsoleLog("timeout on send", s3_FAIL);
-									//s3SendMsg(s_server, s3_TIMEOUT);
 									break;
 								case s3_FAIL:
 									s3ConsoleLog("fail on send", s3_FAIL);
-									//s3SendMsg(s_server, s3_TIMEOUT);
 									break;
 								default:
 									break;
@@ -474,42 +409,53 @@ int main(int argc , char* argv[])
 			clear();
 
 
-			/// draw s3Message boxes
-			setColor(CB_RED);
-			s3DrawFrame(C_CYAN, 2, 19, ScreenHeight - 10, 70);
-			if(UserChannel > 0)
-			s3DrawMessageBox(3, 20, ScreenHeight - 10, 30,70, 0, msgBuffers[channel]);
+			// draw contacts
+
+			s3DrawContactList(3, 1, 20, ScreenHeight - 12, &contactList, channel);
+			/*int i;
+			for (i = 0; i < contactList.Size; i++)
+			{
+				s3DrawBox(channel == i ? CB_MAGENTA :CB_CYAN, 2, channel == i ? 1: 0 , 20 , 3);
+				setColor(channel == i ? CB_MAGENTA : CB_CYAN);
+				gotoxy(3 + i * 3, channel == i ? 1 : 0);
+				printf(contactList.contacts[i].info);
+				gotoxy(3 + i * 3 +1, channel == i ? 1 : 0);
+				printf("ph: %lld " , contactList.contacts[i].phoneNo);
+	
+
+			}*/
+
+
+			// draw s3Message boxes
+			setColor(CB_WHITE);
+			s3DrawFrame(C_CYAN, 2, 24, 75, ScreenHeight - 8);
+			if(contactList.Size > 0)
+			s3DrawMessageBox(3, 25,  74, ScreenHeight - 10, 30, 0, contactList.contacts[channel].msgBuffer);
 
 
 			// current state box
-
-			s3DrawBox(CB_BLUE, ScreenHeight - 6 , 2 , 6, 20);
+			s3DrawBox(CB_BLUE, ScreenHeight - 6 , 2 , 20, 6);
 			setColor(CB_BLUE);
 			gotoxy(ScreenHeight - 5, 3);
 			printf("Channel: %d", channel);
 			gotoxy(ScreenHeight - 4, 3);
-			printf("Phone:%llu\n", ( unsigned long long)UserPhoneNumber);
+			printf("Phone: %lld\n", UserPhoneNumber);
 			gotoxy(ScreenHeight - 3, 3);
-			printf("UserID:%llu\n",( unsigned long long) UserID);
+			printf("UserID:%lld\n",UserID);
 			setColor(CB_WHITE);
 
 
 			// information console
-			s3DrawBox(CB_BLUE, ScreenHeight - 6, ScreenWidth - 20, 6, 20);
+			s3DrawBox(CB_BLUE, ScreenHeight - 6, ScreenWidth - 20, 20, 6);
 			setColor(CB_BLUE);
-			int maxConsoleLines = max(msgBuffers[255].index - 6, 0);
-			int consoleLineLimit = 6;
-
-			s3DrawConsoleBox(ScreenHeight - 6, ScreenWidth - 20, 6, 20, 20);
-
-
+			s3DrawConsoleBox(ScreenHeight - 6, ScreenWidth - 20, 20, 6, 20);
 			setColor(CB_WHITE);
 
 
 
 
 			// input box draw
-			s3DrawBox(CB_YELLOW, ScreenHeight-6, 23, 6, 56);
+			s3DrawBox(CB_YELLOW, ScreenHeight-6, 23,56, 6);
 			setColor(CB_YELLOW);
 			char* channelData = s3GetBufferChannel(channel);
 			int len = s3GetBufferChannelLen(channel);

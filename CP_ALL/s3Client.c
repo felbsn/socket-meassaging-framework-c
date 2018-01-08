@@ -139,20 +139,18 @@ s3Flag s3InitClient(const char* HostNameStr, int portNumber, Token PhoneNumber ,
 	return s3_SUCCESS;
 }
 
-s3Flag s3Reconnect(Token* userID)
+s3Flag s3Reconnect(Token* userID ,SOCKET* serverSocket)
 {
 	closesocket(s_server);
 	if ((s_server = socket(AF_INET, SOCK_STREAM, 0)) == INVALID_SOCKET)
 	{
-		printf("Could not create socket : %d", WSAGetLastError());
 		return s3_FAIL;
 	};
 
 
 	if (connect(s_server, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0)
 	{
-		printf("connect failed %d \n", WSAGetLastError());
-		system("pause");
+
 		return s3_FAIL;
 	}
 
@@ -186,14 +184,15 @@ s3Flag s3Reconnect(Token* userID)
 
 	if (msg == s3_SUCCESS)
 	{
-		//puts("s3 succesfully registered!");
+		//s3 succesfully registered!
 
 	}else
 	if (msg == s3_RESIGNED)
 	{
-		//puts("s3 succesfully resigned!");
+		//s3 succesfully resigned!
 	}
 
+	*serverSocket = s_server;
 	return s3_SUCCESS;
 }
 
@@ -241,9 +240,15 @@ s3Flag s3RunClient(s3ContactList *contactList ,unsigned int TimeoutMicroSecs)
 				s3SendMsg(s_server, s3_ACCEPT);
 				s3Flag Res = s3RecvToken(s_server, &_lastReceivedPhoneNo);
 				s3SendMsg(s_server, s3_OK);
+
+				time_t timeRec;
+				 Res = s3RecvTime(s_server, &timeRec);
+				s3SendMsg(s_server, s3_OK);
+
+
 				s3RecvBuffer(s_server);
 
-				s3HandleMessages(contactList , _lastReceivedPhoneNo);
+				s3HandleMessages(contactList , _lastReceivedPhoneNo , timeRec);
 
 				s3SendMsg(s_server, s3_OK);
 
@@ -252,9 +257,14 @@ s3Flag s3RunClient(s3ContactList *contactList ,unsigned int TimeoutMicroSecs)
 			} while (msg == s3_CONTINUE);
 
 			if (msg == s3_DONE)
-				return msg;
+			{
+				return s3_INCOMING_MSG;
+			}
 			else
+			{
 				return s3_FAIL;
+			}
+				
 		}
 		else
 		{
@@ -262,7 +272,15 @@ s3Flag s3RunClient(s3ContactList *contactList ,unsigned int TimeoutMicroSecs)
 			return msg;
 
 		}
+
+
+		
+	}
+	else
+	{
+		return s3_DEFAULT;
 	}
 
-	return s3_OK;
+
+	
 }

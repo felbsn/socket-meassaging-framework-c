@@ -154,6 +154,7 @@ s3Flag s3DestroyServer()
 	{
 		closesocket(s3_server);
 		WSACleanup();
+		return s3_TRUE;
 	}
 	else
 		return s3_FALSE;
@@ -251,7 +252,7 @@ s3Flag s3RunServer(int timeout)
 			printf("socket result code: %d \n", result);
 
 			// send s3Messages to new user
-			s3Handles3Messages(&Clist, &Clist.data[index]);
+			s3ProcessMessages(&Clist.data[index]);
 			}
 		}
 		else
@@ -268,7 +269,7 @@ s3Flag s3RunServer(int timeout)
 
 
 
-	//else its some IO operation on some other socket :)
+	//else its some IO operation on some other socket ;D
 	for (i = 0; i < Clist.Size; i++)
 	{
 		SOCKET s = Clist.data[i].socket;
@@ -317,9 +318,13 @@ s3Flag s3RunServer(int timeout)
 				{
 					printf("connection came in -> Phone:%llu ,UserID:%llu \n", Clist.data[i].phoneNo, Clist.data[i].userID);
 
-					s3HandleConnection(&Clist, i, msgBuffer[0]);
+					s3ProcessConnection(&Clist, i, msgBuffer[0]);
 
 				}
+		}
+		else
+		{
+			s3ProcessMessages(&Clist.data[i]);
 		}
 
 
@@ -329,4 +334,3 @@ s3Flag s3RunServer(int timeout)
 
 	return s3_OK;
 }
-

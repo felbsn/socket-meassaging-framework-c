@@ -61,6 +61,7 @@ struct s3MessageBuffer_s
 };
 typedef struct s3MessageBuffer_s  s3MessageBuffer;
 
+void s3DeleteBuffer(s3MessageBuffer* msgBuffer);
 
 s3MessageBuffer s3NewMessageBuffer();
 
@@ -70,7 +71,7 @@ void s3InitMessageBuffers(s3MessageBuffer* msgBuffers, int count);
 
 void s3InitMessageHandler(int width, int height);
 
-void s3AddMessage(s3MessageBuffer* MsgBuffer, const char* msgStr, s3Flag Prop);
+void s3AddMessage(s3MessageBuffer* MsgBuffer, const char* msgStr, time_t t, s3Flag Prop);
 
 void s3ConsoleLog(const char * lines, s3Flag Prop);
 

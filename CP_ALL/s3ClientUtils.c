@@ -43,7 +43,7 @@ int s3FindContactIndexByPhone(s3ContactList* contactList, Token phoneNo)
 }
 
 
-s3Flag s3HandleMessages(s3ContactList* contactList , Token phone)
+s3Flag s3HandleMessages(s3ContactList* contactList , Token phone , time_t t)
 {
 
 	int index = s3FindContactIndexByPhone(contactList, phone);
@@ -51,10 +51,11 @@ s3Flag s3HandleMessages(s3ContactList* contactList , Token phone)
 	{
 		char buffer[30];
 		sprintf(buffer, "%llu", phone);
-		index = s3AddContactRx(&contactList, buffer, phone , -1);
+		index = s3AddContactRx(contactList, buffer, phone , (Token)-1);
 	}
 
-	s3AddMessage(&contactList->contacts[index], s3GetRxBuffer(), s3_FROM_CONTACT);
+	s3AddMessage(&contactList->contacts[index].msgBuffer, s3GetRxBuffer(), t,s3_FROM_CONTACT);
+	contactList->contacts[index].messageCount++;
 }
 
 
@@ -159,6 +160,7 @@ int s3AddContactRx(s3ContactList* contactList, const char* infoStr, Token phoneN
 
 	contactList->contacts[contactList->Size].id = id;
 	contactList->contacts[contactList->Size].messageCount = 0;
+	contactList->contacts[contactList->Size].msgBuffer = s3NewMessageBuffer();
 	contactList->contacts[contactList->Size].phoneNo = phoneNo;
 	strcpy(contactList->contacts[contactList->Size].info, infoStr);
 	contactList->Size++;
@@ -192,17 +194,14 @@ int s3AddContact(SOCKET serverSocket, s3ContactList* contactList, char* infoStr,
 				{
 					return s3_USER_NOT_FOUND;
 				}
-		}
-		else
-		{
-			return s3_ERROR;
+
 		}
 
+
 	}
-	else
-	{
+
 		return s3_ERROR;
-	}
+	
 }
 
 s3Flag s3Sends3Message(SOCKET serverSocket, s3Contact* contact, int bufferChannel)
@@ -267,7 +266,6 @@ s3Flag s3Sends3Message(SOCKET serverSocket, s3Contact* contact, int bufferChanne
 	return msg;
 }
 
-
 s3Flag s3GetContactID(SOCKET s_server, s3Contact *contact)
 {
 	if (s_server)
@@ -302,4 +300,65 @@ s3Flag s3GetContactID(SOCKET s_server, s3Contact *contact)
 		}
 	}
 	return s3_SERVER_ERROR;
+}
+
+
+s3Flag s3DrawContactList(int x , int y  , int width , int height ,s3ContactList* contactList, int index )
+{
+	if (!contactList->Size)
+	{
+		return s3_DEFAULT;
+	}
+
+	
+	int maxPerson = min(contactList->Size ,height / 3);
+	int lastPerson;
+	int i;
+	if (index > maxPerson)
+	{
+		i = index - maxPerson;
+		
+	}
+	else
+	{
+		i = 0;
+	}
+
+	lastPerson = i + maxPerson;
+	int pos = 0;
+	for (i; i < lastPerson; i++)
+	{
+		int xpos = x + 3 * pos;
+
+		if (i == index)
+		{
+			s3DrawBox(CB_MAGENTA, xpos, y, 20, 3);
+			setColor(CB_MAGENTA);
+			setColor(C_WHITE);
+			gotoxy(xpos+1, y);
+			printf(" %s", contactList->contacts[i].info);
+			gotoxy(xpos + 2, y);
+			printf(" phone:%lld", contactList->contacts[i].phoneNo);
+			setColor(C_GRAY);
+
+			contactList->contacts[i].messageCount = 0;
+		}
+		else
+		{
+			s3DrawBox(CB_CYAN, xpos, y, 20, 3);
+			setColor(CB_CYAN);
+			gotoxy(xpos + 1, y);
+			if(contactList->contacts[i].messageCount)
+			printf(" (%d)%s", contactList->contacts[i].messageCount  , contactList->contacts[i].info);
+			else
+			printf(" %s", contactList->contacts[i].info);
+			gotoxy(xpos + 2, y);
+			printf(" phone:%lld", contactList->contacts[i].phoneNo);
+		}
+
+		pos++;
+	}
+
+	return s3_DONE;
+	
 }

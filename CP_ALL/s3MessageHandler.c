@@ -27,6 +27,17 @@ static char* _s3_CONTACT_MSG_COLOR = CB_BLUE;
 static s3MessageBuffer consoleBuffer = { 0 };
 
 
+void s3DeleteBuffer(s3MessageBuffer* msgBuffer)
+{
+	int i;
+	for (i = 0; i < msgBuffer->index ; i++)
+	{
+		free(msgBuffer->messages[i].str);
+		free(msgBuffer->messages);
+	}
+
+}
+
 s3MessageBuffer s3NewMessageBuffer()
 {
 	s3MessageBuffer msg;
@@ -74,7 +85,7 @@ void s3InitMessageHandler(int width, int height)
 	}
 }
 
-void s3AddMessage(s3MessageBuffer* MsgBuffer, const char* msgStr, s3Flag Prop)
+void s3AddMessage(s3MessageBuffer* MsgBuffer, const char* msgStr, time_t t, s3Flag Prop)
 {
 
 	// check buffer size
@@ -91,13 +102,13 @@ void s3AddMessage(s3MessageBuffer* MsgBuffer, const char* msgStr, s3Flag Prop)
 
 
 	// copy string to buffer's last element
-	MsgBuffer->messages[MsgBuffer->index].str = (char*)malloc(msgLen * sizeof(char));
+	MsgBuffer->messages[MsgBuffer->index].str = (char*)malloc( (msgLen+1) * sizeof(char));
 	strcpy(MsgBuffer->messages[MsgBuffer->index].str, msgStr);
 
 
 	MsgBuffer->messages[MsgBuffer->index].Prop = Prop;
 	MsgBuffer->messages[MsgBuffer->index].Length = msgLen;
-	MsgBuffer->messages[MsgBuffer->index].tm = time(NULL);
+	MsgBuffer->messages[MsgBuffer->index].tm = t;
 	MsgBuffer->index++;
 
 
@@ -105,7 +116,7 @@ void s3AddMessage(s3MessageBuffer* MsgBuffer, const char* msgStr, s3Flag Prop)
 
 void s3ConsoleLog(const char * lines, s3Flag Prop)
 {
-	s3AddMessage(&consoleBuffer, lines, Prop);
+	s3AddMessage(&consoleBuffer, lines,0 ,Prop );
 }
 
 

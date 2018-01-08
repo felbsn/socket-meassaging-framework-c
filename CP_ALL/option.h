@@ -5,4 +5,8 @@
 
 #define CLIENT
 
-//#define SERVER
+#ifndef CLIENT
+
+	#define SERVER
+
+#endif // !CLIENT
