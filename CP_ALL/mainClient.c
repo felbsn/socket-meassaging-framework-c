@@ -283,7 +283,7 @@ int main(int argc , char* argv[])
 			if (s3GetKeyState('e', s3Key_Pressed) || s3GetKeyState('E', s3Key_Pressed))
 			{
 				s3KeyGetAltToggleReset();
-				s3DrawBox(CB_YELLOW, ScreenHeight / 2 - 3, ScreenWidth / 2 - 18, 6, 36);
+				s3DrawBox(CB_YELLOW, ScreenHeight / 2 - 3, ScreenWidth / 2 - 18, 36, 6);
 
 				setColor(CB_YELLOW);
 				gotoxy(ScreenHeight / 2 - 2, ScreenWidth / 2 - 17);

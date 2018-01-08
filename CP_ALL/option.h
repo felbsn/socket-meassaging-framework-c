@@ -3,7 +3,7 @@
 
 
 
-#define CLIENT
+//#define CLIENT
 
 #ifndef CLIENT
 

@@ -546,139 +546,14 @@ int s3ProcessConnection(s3ClientList * clist,Token index, s3Flag flag)
 				{
 
 
-					/*if (clist->data[id].socket != NULL)
-					{
-						// Test target connection tester
-						result = (s3Flag)s3SendMsg(clist->data[id].socket, s3_INCOMING_MSG);
-						if (!result) {
-							puts(">>> #TARGET_ERROR sending s3_INCOMING_MSG");
-							eraseClientByIndices(clist, id);
-							//
-							result = (s3Flag)s3SendMsg(CP.socket, s3_FAIL);
-							if (!result) {
-								puts(" #ERROR on sender");
-								eraseClientByIndices(clist, index);
-							}
-							//
-							return s3_FALSE;
-						}
-
-						result = s3RecvMsg(clist->data[id].socket, &msg);
-						if (!result) {
-							puts(" >>> #TARGET_ERROR receiving s3_INCOMING_MSG achnowledge");
-							eraseClientByIndices(clist, id);
-							//
-							result = (s3Flag)s3SendMsg(CP.socket, s3_FAIL);
-							if (!result) {
-								puts(" #ERROR on sender");
-								eraseClientByIndices(clist, index);
-							}
-							//
-							return s3_FALSE;
-						}
-
-						if (msg != s3_ACCEPT)
-						{
-							printf("Target not accept s3Message msg -> %d \n", msg);
-							result = (s3Flag)s3SendMsg(CP.socket, s3_FAIL);
-							if (!result) {
-								puts(" #ERROR sending Final Word");
-								eraseClientByIndices(clist, index);
-							}
-							result = (s3Flag)s3SendMsg(clist->data[id].socket, s3_FAIL);
-							return s3_FAIL;
-						}
-
-						result = (s3Flag)s3SendToken(clist->data[id].socket, CP.phoneNo);
-						if (!result) {
-							puts(" error sender phone number to Target phoneNumber");
-							eraseClientByIndices(clist, id);
-
-							result = (s3Flag)s3SendMsg(CP.socket, s3_FAIL);
-							return s3_FAIL;
-						}
-
-						result = s3RecvMsg(clist->data[id].socket, &msg);
-						if (!result) {
-							puts(" #ERROR receiving phoneNumber achnowledge");
-							eraseClientByIndices(clist, id);
-
-							result = (s3Flag)s3SendMsg(CP.socket, s3_FAIL);
-							return s3_FAIL;
-						}
-
-						if (msg != s3_OK)
-						{
-							printf("Target not send OK msg -> %d \n", msg);
-							result = (s3Flag)s3SendMsg(CP.socket, s3_FAIL);
-							if (!result) {
-								puts(" #ERROR sending Final Word");
-								eraseClientByIndices(clist, index);
-							}
-
-							return s3_FAIL;
-						}
-						// afeter finishing target stuff
-
-
-						// send achnowledge to sender
-						result = (s3Flag)s3SendMsg(CP.socket, s3_FOUND);
-						if (!result) {
-							puts(" #ERROR send s3_FOUND");
-							eraseClientByIndices(clist, index);
-
-							// send fail infomation s3Message to receiver client
-							result = (s3Flag)s3SendMsg(clist->data[id].socket, s3_FAIL);
-
-							return s3_FAIL;
-						}
-
-						//receive data from requester
-						result = (s3Flag)s3RecvBuffer(CP.socket);
-						if (!result) {
-							puts(" #ERROR receiving FOUND achnowledge");
-							eraseClientByIndices(clist, index);
-
-							result = (s3Flag)s3SendMsg(clist->data[id].socket, s3_FAIL);
-
-							return s3_FAIL;
-						}
-
-						if (s3SendBufferTx(clist->data[id].socket))
-						{
-							puts(" Buffer succesfully send to TARGET *");
-							//send second status to peer
-							result = (s3Flag)s3SendMsg(CP.socket, s3_SUCCESS);
-							if (!result) {
-								puts(" #ERROR sending Final Word");
-								eraseClientByIndices(clist, index);
-							}
-
-						}
-						else
-						{
-							puts(" #ERROR sending buffer to target");
-							//send second status to peer
-							result = (s3Flag)s3SendMsg(CP.socket, s3_FAIL);
-							if (!result) {
-								puts(" #ERROR sending Final Word");
-								eraseClientByIndices(clist, index);
-							}
-						}
-					}
-					else
-					{
-					}*/
-
-
 						puts("writing to database");
-						s3SendMsg(CP.socket, s3_FOUND);
+						s3SendMsg(CP.socket, s3_FOUND); //send acknowledge
 
-						s3RecvBuffer(CP.socket);
+						s3RecvBuffer(CP.socket); // recv str buffer
 						
 						s3AddQueneItem(clist, id, CP.phoneNo, time(NULL), s3GetRxBuffer(),  s3GetRxBufferLen());
 
-						s3SendMsg(CP.socket, s3_SUCCESS);
+						s3SendMsg(CP.socket, s3_SUCCESS);//send acknowledge
 					
 				}
 				else
@@ -700,7 +575,7 @@ int s3ProcessConnection(s3ClientList * clist,Token index, s3Flag flag)
 		break;
 	}
 
-	puts("----------------------------->proccess end");
+	puts("----------------------------->process end");
 
 	return s3_OK;
 }
