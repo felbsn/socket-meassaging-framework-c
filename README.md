@@ -18,4 +18,5 @@ This is the main part of socket functions , connections and message related meth
 <h3> Visual part </h3>
 The part that visualize all messages ,connections inputs/outputs. And make user interact with core part
 
+(it is console window)
 ![ss](https://i.imgur.com/P5MfzET.png)
